@@ -14,7 +14,10 @@
       "Bash(powershell -Command \"Select-String -Path ''C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo\\\\components\\\\ArpeggioDrills.tsx'' -Pattern ''showTab|showMini''\")",
       "Bash(powershell -Command \"\\(Get-Content ''C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo\\\\components\\\\ArpeggioDrills.tsx''\\).Count\")",
       "Bash(powershell -Command \"Set-Location ''C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo''; git status; Write-Host ''DONE''\")",
-      "Bash(powershell -NonInteractive -Command \"cd ''C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo''; git init 2>&1; git add . 2>&1; git commit -m ''Initial commit: FretMaster Pro'' 2>&1\")"
+      "Bash(powershell -NonInteractive -Command \"cd ''C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo''; git init 2>&1; git add . 2>&1; git commit -m ''Initial commit: FretMaster Pro'' 2>&1\")",
+      "Bash(powershell -Command \"Write-Output ''test123''\")",
+      "Bash(powershell -Command \"Write-Output ''hello'' | Out-File C:/Users/James/tmp_test.txt -Encoding utf8; Get-Content C:/Users/James/tmp_test.txt\")",
+      "Bash(powershell -Command \":*)"
     ]
   }
 }
