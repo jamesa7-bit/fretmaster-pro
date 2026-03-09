@@ -66,7 +66,7 @@ export default function NeckTriads() {
     return generated;
   }, [triadNoteIndices, triad]);
 
-  const triadNoteNames = triadNoteIndices.map(getNoteName);
+  const triadNoteNames = triadNoteIndices.map(n => getNoteName(n));
 
   return (
     <div className="flex flex-col h-full gap-6 animate-in fade-in duration-500 p-8">
