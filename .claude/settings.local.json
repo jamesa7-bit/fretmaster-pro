@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npm)",
+      "Bash(where node)",
+      "Bash(Get-Command npm)",
+      "Bash(Select-Object -ExpandProperty Source)",
+      "Bash(Get-Command node)",
+      "Bash(npm --version)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(npm install)",
+      "Bash(cmd /c \"findstr /n showTab \"\"C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo\\\\components\\\\ArpeggioDrills.tsx\"\"\")",
+      "Bash(powershell -Command \"Select-String -Path ''C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo\\\\components\\\\ArpeggioDrills.tsx'' -Pattern ''showTab|showMini''\")",
+      "Bash(powershell -Command \"\\(Get-Content ''C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo\\\\components\\\\ArpeggioDrills.tsx''\\).Count\")",
+      "Bash(powershell -Command \"Set-Location ''C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo''; git status; Write-Host ''DONE''\")",
+      "Bash(powershell -NonInteractive -Command \"cd ''C:\\\\Users\\\\James\\\\OneDrive\\\\Desktop\\\\Personal\\\\Claude Code projects\\\\Fretmaster PRo''; git init 2>&1; git add . 2>&1; git commit -m ''Initial commit: FretMaster Pro'' 2>&1\")"
+    ]
+  }
+}

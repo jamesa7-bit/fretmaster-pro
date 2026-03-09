@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+body {
+  background-color: #0A0A0A;
+  color: #FFFFFF;
+}
+@plugin "@tailwindcss/typography";

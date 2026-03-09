@@ -1,0 +1,7 @@
+{
+  "name": "FretMaster Pro",
+  "description": "A comprehensive guitar training app with interactive scale diagrams, arpeggio drills, a programmable metronome, an interactive Circle of Fifths, and an AI-powered music theory coach.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
