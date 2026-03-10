@@ -29,7 +29,7 @@ export default function ScaleDiagrams() {
     <div className="flex flex-col h-full gap-6 animate-in fade-in duration-500 p-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tighter">Scale Library</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight">Scale Library</h1>
           <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-3">Explore scales across the entire fretboard</p>
         </div>
 

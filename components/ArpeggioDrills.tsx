@@ -203,7 +203,7 @@ export default function ArpeggioDrills() {
       {/* ── Header row ── */}
       <div className="flex items-start justify-between shrink-0">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tighter">Arpeggio Drills</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">Arpeggio Drills</h1>
           <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-[10px] mt-1.5">Master chord tones across the neck</p>
         </div>
         <div className="flex gap-2 pt-1">

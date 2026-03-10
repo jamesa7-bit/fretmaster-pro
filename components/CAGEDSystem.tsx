@@ -129,7 +129,7 @@ export default function CAGEDSystem() {
       {/* Header */}
       <div className="flex items-start justify-between shrink-0">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tighter">CAGED System</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">CAGED System</h1>
           <p className="font-light tracking-[0.2em] uppercase text-[10px] mt-1.5" style={{ color: shape.color }}>
             5 shapes · one fretboard
           </p>

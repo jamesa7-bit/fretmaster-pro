@@ -94,7 +94,8 @@ export default function Fretboard({
   const markerRadius = compact ? 10 : 18;
   const labelFontSize = compact ? 9 : 16;
   const width = numFrets * fretWidth + (showNut && startFret === 0 ? 20 : 0) + 40;
-  const height = (strings - 1) * stringSpacing + 40;
+  const fretLabelHeight = compact ? 14 : 18;
+  const height = (strings - 1) * stringSpacing + 40 + fretLabelHeight;
 
   const nutOffset = showNut && startFret === 0 ? 20 : 0;
 
@@ -153,23 +154,37 @@ export default function Fretboard({
           );
         })}
 
-        {/* Inlays */}
+        {/* Inlays + fret number labels */}
         {inlays.map(fret => {
           if (fret < startFret || fret > startFret + numFrets) return null;
           const relativeFret = fret - startFret;
           const x = nutOffset + (relativeFret - 0.5) * fretWidth;
           const yCenter = 20 + ((strings - 1) * stringSpacing) / 2;
-          
-          if (fret === 12 || fret === 24) {
-            return (
-              <g key={`inlay-${fret}`}>
-                <circle cx={x} cy={yCenter - stringSpacing} r={4} fill="#1A1A1A" />
-                <circle cx={x} cy={yCenter + stringSpacing} r={4} fill="#1A1A1A" />
-              </g>
-            );
-          }
+          const dotColor = '#3A3A3A';
+
           return (
-            <circle key={`inlay-${fret}`} cx={x} cy={yCenter} r={4} fill="#1A1A1A" />
+            <g key={`inlay-${fret}`}>
+              {fret === 12 || fret === 24 ? (
+                <>
+                  <circle cx={x} cy={yCenter - stringSpacing} r={compact ? 3 : 5} fill={dotColor} />
+                  <circle cx={x} cy={yCenter + stringSpacing} r={compact ? 3 : 5} fill={dotColor} />
+                </>
+              ) : (
+                <circle cx={x} cy={yCenter} r={compact ? 3 : 5} fill={dotColor} />
+              )}
+              {/* Fret number below the board */}
+              <text
+                x={x}
+                y={20 + (strings - 1) * stringSpacing + (compact ? 10 : 14)}
+                fill="#3A3A3A"
+                fontSize={compact ? 8 : 11}
+                textAnchor="middle"
+                dominantBaseline="hanging"
+                fontWeight="bold"
+              >
+                {fret}
+              </text>
+            </g>
           );
         })}
 

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   MoreHorizontal, X, Guitar, Activity, Clock, CircleDashed,
-  MessageSquare, ListMusic, Music, Layers, Grid3x3,
+  MessageSquare, ListMusic, Music, Layers, Grid3x3, ChevronLeft,
 } from 'lucide-react';
 import ScaleDiagrams from '@/components/ScaleDiagrams';
 import ArpeggioDrills from '@/components/ArpeggioDrills';
@@ -14,13 +14,15 @@ import RoutineBuilder from '@/components/RoutineBuilder';
 import DiatonicChords from '@/components/DiatonicChords';
 import NeckTriads from '@/components/NeckTriads';
 import CAGEDSystem from '@/components/CAGEDSystem';
+import HomeScreen from '@/components/HomeScreen';
 import { AppProvider } from '@/components/AppContext';
 import { MusicContextProvider } from '@/contexts/MusicContext';
+import { MetronomeProvider } from '@/contexts/MetronomeContext';
 
 const tabs = [
-  { id: 'diatonic',  label: 'Diatonic Chords', icon: Music,        desc: 'Chords native to every key',         accent: '#16a34a' },
-  { id: 'circle',    label: 'Circle of 5ths',  icon: CircleDashed,  desc: 'Key relationships & jazz subs',      accent: '#06b6d4' },
-  { id: 'caged',     label: 'CAGED System',    icon: Grid3x3,       desc: '5-shape fretboard framework',        accent: '#a855f7' },
+  { id: 'diatonic',  label: 'Diatonic Chords', icon: Music,        desc: 'Chords native to every key',          accent: '#16a34a' },
+  { id: 'circle',    label: 'Circle of 5ths',  icon: CircleDashed,  desc: 'Key relationships & jazz subs',       accent: '#06b6d4' },
+  { id: 'caged',     label: 'CAGED System',    icon: Grid3x3,       desc: '5-shape fretboard framework',         accent: '#a855f7' },
   { id: 'triads',    label: 'Neck Triads',     icon: Layers,        desc: 'Triads & inversions across the neck', accent: '#f97316' },
   { id: 'scales',    label: 'Scale Library',   icon: Guitar,        desc: 'Visualise scales in every position',  accent: '#3b82f6' },
   { id: 'arpeggios', label: 'Arpeggio Drills', icon: Activity,      desc: 'Pick chord tones up the neck',        accent: '#eab308' },
@@ -30,18 +32,32 @@ const tabs = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('diatonic');
+  const [activeTab, setActiveTab] = useState<string | null>(null); // null = home screen
   const [showMenu, setShowMenu] = useState(false);
 
-  const active = tabs.find(t => t.id === activeTab)!;
+  const active = tabs.find(t => t.id === activeTab);
 
   return (
     <MusicContextProvider>
+    <MetronomeProvider>
     <AppProvider>
       <div className="h-screen w-screen bg-[#0A0A0A] text-white overflow-hidden flex flex-col font-sans selection:bg-[#16a34a]/30">
 
         {/* Header */}
-        <header className="flex-shrink-0 flex items-center justify-end px-6 h-12 z-40">
+        <header className="flex-shrink-0 flex items-center justify-between px-4 h-12 z-40">
+          {/* Back / Home button — only show when on a feature screen */}
+          {activeTab !== null ? (
+            <button
+              onClick={() => setActiveTab(null)}
+              className="flex items-center gap-1 p-2 text-white/30 hover:text-white transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span className="text-xs tracking-wide">Home</span>
+            </button>
+          ) : (
+            <div className="w-20" /> // spacer to keep menu icon right-aligned
+          )}
+
           <button onClick={() => setShowMenu(true)} className="p-2">
             <MoreHorizontal className="w-7 h-7 text-white/30 hover:text-white transition-colors" />
           </button>
@@ -49,6 +65,7 @@ export default function App() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto flex flex-col w-full min-h-0">
+          {activeTab === null      && <HomeScreen onNavigate={setActiveTab} />}
           {activeTab === 'diatonic'  && <DiatonicChords />}
           {activeTab === 'scales'    && <ScaleDiagrams />}
           {activeTab === 'triads'    && <NeckTriads />}
@@ -64,8 +81,13 @@ export default function App() {
         {showMenu && (
           <div className="absolute inset-0 z-50 backdrop-blur-[14px] bg-[#0A0A0A]/85 flex flex-col animate-in fade-in duration-200">
 
-            {/* Close */}
-            <div className="flex justify-end px-6 pt-5">
+            <div className="flex justify-between items-center px-6 pt-5">
+              <button
+                onClick={() => { setActiveTab(null); setShowMenu(false); }}
+                className="text-xs text-white/30 hover:text-white transition-colors tracking-wide"
+              >
+                ← Home
+              </button>
               <button onClick={() => setShowMenu(false)} className="p-1.5 text-white/30 hover:text-white transition-colors">
                 <X className="w-6 h-6" />
               </button>
@@ -74,12 +96,14 @@ export default function App() {
             {/* Branding */}
             <div className="px-6 pt-2 pb-4">
               <div className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/20 mb-0.5">FretMaster Pro</div>
-              <div
-                className="text-xs font-light tracking-[0.15em] uppercase"
-                style={{ color: active.accent }}
-              >
-                {active.label}
-              </div>
+              {active && (
+                <div
+                  className="text-xs font-light tracking-[0.15em] uppercase"
+                  style={{ color: active.accent }}
+                >
+                  {active.label}
+                </div>
+              )}
             </div>
 
             {/* Grid */}
@@ -100,7 +124,6 @@ export default function App() {
                         border: `1px solid ${isActive ? tab.accent + '50' : '#ffffff10'}`,
                       }}
                     >
-                      {/* Active dot */}
                       {isActive && (
                         <span
                           className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full"
@@ -108,12 +131,9 @@ export default function App() {
                         />
                       )}
 
-                      {/* Icon */}
                       <div
                         className="w-8 h-8 rounded-[8px] flex items-center justify-center mb-2.5"
-                        style={{
-                          backgroundColor: isActive ? tab.accent + '22' : '#ffffff08',
-                        }}
+                        style={{ backgroundColor: isActive ? tab.accent + '22' : '#ffffff08' }}
                       >
                         <Icon
                           className="w-4 h-4"
@@ -121,7 +141,6 @@ export default function App() {
                         />
                       </div>
 
-                      {/* Label */}
                       <div
                         className="text-[11px] font-bold leading-tight mb-0.5"
                         style={{ color: isActive ? '#ffffff' : '#ffffff70' }}
@@ -129,7 +148,6 @@ export default function App() {
                         {tab.label}
                       </div>
 
-                      {/* Desc */}
                       <div className="text-[9px] text-white/25 leading-snug">
                         {tab.desc}
                       </div>
@@ -142,6 +160,7 @@ export default function App() {
         )}
       </div>
     </AppProvider>
+    </MetronomeProvider>
     </MusicContextProvider>
   );
 }

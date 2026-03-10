@@ -74,7 +74,7 @@ export default function NeckTriads() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-4xl font-extrabold tracking-tighter">Neck Triads</h1>
+            <h1 className="text-4xl font-extrabold tracking-tight">Neck Triads</h1>
             <InfoTooltip title="Neck Triads" sections={TRIADS_INFO} />
           </div>
           <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-3">Every triad position across the full neck</p>
