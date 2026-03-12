@@ -11,7 +11,7 @@ export default function Metronome() {
     beatsPerMeasure, setBeatsPerMeasure,
     accentedBeats, toggleAccent,
     subdivision, setSubdivision,
-    currentBeat,
+    currentBeat, currentSubdivision,
     speedTrainerActive, setSpeedTrainerActive,
     incrementAmount, setIncrementAmount,
     incrementInterval, setIncrementInterval,
@@ -44,22 +44,44 @@ export default function Metronome() {
           </div>
 
           {/* Beat Grid */}
-          <div className="flex justify-center gap-4 w-full">
-            {Array.from({ length: beatsPerMeasure }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => toggleAccent(i)}
-                className={`flex-1 h-16 rounded-[8px] transition-all duration-75 flex items-center justify-center ${
-                  currentBeat === i
-                    ? 'bg-[#16a34a] shadow-[0_0_30px_rgba(22,163,74,0.3)]'
-                    : accentedBeats.includes(i)
-                      ? 'bg-[#1A1A1A] border-b-4 border-[#16a34a]'
-                      : 'bg-[#1A1A1A]'
-                }`}
-              >
-                <div className={`w-3 h-3 rounded-full ${currentBeat === i ? 'bg-[#0A0A0A]' : accentedBeats.includes(i) ? 'bg-[#16a34a]' : 'bg-white/20'}`} />
-              </button>
-            ))}
+          <div className="flex flex-col gap-2 w-full">
+            <div className="flex justify-center gap-4 w-full">
+              {Array.from({ length: beatsPerMeasure }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => toggleAccent(i)}
+                  className={`flex-1 h-16 rounded-[8px] transition-all duration-75 flex items-center justify-center ${
+                    currentBeat === i && currentSubdivision === 0
+                      ? 'bg-[#16a34a] shadow-[0_0_30px_rgba(22,163,74,0.3)]'
+                      : accentedBeats.includes(i)
+                        ? 'bg-[#1A1A1A] border-b-4 border-[#16a34a]'
+                        : 'bg-[#1A1A1A]'
+                  }`}
+                >
+                  <div className={`w-3 h-3 rounded-full ${currentBeat === i && currentSubdivision === 0 ? 'bg-[#0A0A0A]' : accentedBeats.includes(i) ? 'bg-[#16a34a]' : 'bg-white/20'}`} />
+                </button>
+              ))}
+            </div>
+
+            {/* Sub-beat indicators */}
+            {subdivision > 1 && (
+              <div className="flex justify-center gap-4 w-full">
+                {Array.from({ length: beatsPerMeasure }).map((_, beat) => (
+                  <div key={beat} className="flex-1 flex justify-center gap-1.5">
+                    {Array.from({ length: subdivision }).map((_, sub) => (
+                      <div
+                        key={sub}
+                        className={`w-2 h-2 rounded-full transition-all duration-75 ${
+                          currentBeat === beat && currentSubdivision === sub
+                            ? 'bg-[#16a34a] shadow-[0_0_6px_rgba(22,163,74,0.6)]'
+                            : 'bg-white/15'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Speed Trainer */}

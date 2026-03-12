@@ -37,7 +37,16 @@
       "Bash(echo \"EXIT: $?\")",
       "Bash(echo \"STATUS EXIT: $?\")",
       "Bash(tee /tmp/gitlog.txt)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(echo \"ls exit: $?\")",
+      "Bash(tee /tmp/gitstatus.txt)",
+      "Bash(git -C \"C:/Users/James/OneDrive/Desktop/Personal/Claude Code projects/Fretmaster PRo\" diff --stat HEAD)",
+      "Bash(git -C \"C:/Users/James/OneDrive/Desktop/Personal/Claude Code projects/Fretmaster PRo\" log --oneline -5)",
+      "Bash(git version:*)",
+      "Bash(\"C:/Users/James/AppData/Local/Temp/gitdiff.txt\")",
+      "Bash(\"C:/Users/James/AppData/Local/Temp/gitlog.txt\")",
+      "Bash(git -C \"C:/Users/James/OneDrive/Desktop/Personal/Claude Code projects/Fretmaster PRo\" add -A)",
+      "Bash(\"C:/Users/James/AppData/Local/Temp/gitadd.txt\")"
     ]
   }
 }

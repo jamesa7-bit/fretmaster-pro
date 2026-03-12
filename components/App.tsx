@@ -4,7 +4,9 @@ import { useState } from 'react';
 import {
   MoreHorizontal, X, Guitar, Activity, Clock, CircleDashed,
   MessageSquare, ListMusic, Music, Layers, Grid3x3, ChevronLeft, ListOrdered,
+  Sun, Moon,
 } from 'lucide-react';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import ScaleDiagrams from '@/components/ScaleDiagrams';
 import ArpeggioDrills from '@/components/ArpeggioDrills';
 import Metronome from '@/components/Metronome';
@@ -34,18 +36,15 @@ const tabs = [
   { id: 'coach',     label: 'Theory Coach',    icon: MessageSquare, desc: 'AI-powered music theory help',        accent: '#10b981' },
 ];
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState<string | null>(null); // null = home screen
+function AppShell() {
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   const active = tabs.find(t => t.id === activeTab);
 
   return (
-    <MusicContextProvider>
-    <MetronomeProvider>
-    <PracticeProvider>
-    <AppProvider>
-      <div className="h-screen w-screen bg-[#0A0A0A] text-white overflow-hidden flex flex-col font-sans selection:bg-[#16a34a]/30">
+      <div className="h-screen w-screen bg-[#0A0A0A] text-white overflow-hidden flex flex-col font-sans selection:bg-[#16a34a]/30" data-theme={theme}>
 
         {/* Header */}
         <header className="flex-shrink-0 flex items-center justify-between px-4 h-12 z-40">
@@ -62,9 +61,18 @@ export default function App() {
             <div className="w-20" /> // spacer to keep menu icon right-aligned
           )}
 
-          <button onClick={() => setShowMenu(true)} className="p-2">
-            <MoreHorizontal className="w-7 h-7 text-white/30 hover:text-white transition-colors" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-white/30 hover:text-white transition-colors"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <button onClick={() => setShowMenu(true)} className="p-2">
+              <MoreHorizontal className="w-7 h-7 text-white/30 hover:text-white transition-colors" />
+            </button>
+          </div>
         </header>
 
         {/* Main Content */}
@@ -164,9 +172,21 @@ export default function App() {
           </div>
         )}
       </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+    <MusicContextProvider>
+    <MetronomeProvider>
+    <PracticeProvider>
+    <AppProvider>
+      <AppShell />
     </AppProvider>
     </PracticeProvider>
     </MetronomeProvider>
     </MusicContextProvider>
+    </ThemeProvider>
   );
 }

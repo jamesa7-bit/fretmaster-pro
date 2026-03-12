@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { STANDARD_TUNING, getNoteName, getIntervalName, getScaleDegree, CAGEDShape, CAGED_OFFSETS, CAGED_COLORS } from '@/lib/music-theory';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export type LabelMode = 'name' | 'degree' | 'interval' | 'none';
 
@@ -25,6 +26,7 @@ interface FretboardProps {
   showNut?: boolean;
   cagedOverlay?: { shape: CAGEDShape; rootNote: number } | null;
   compact?: boolean;   // smaller fret/string spacing for mini displays
+  dense?: boolean;     // medium density — between compact and full
   maxWidth?: number;   // cap SVG width (px) to control proportional height
 }
 
@@ -38,10 +40,29 @@ export default function Fretboard({
   showNut = true,
   cagedOverlay = null,
   compact = false,
+  dense = false,
   maxWidth,
 }: FretboardProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme-aware SVG colors
+  const clr = {
+    boardBg:     isDark ? '#0A0A0A' : '#F8F8F8',
+    boardBorder: isDark ? '#1A1A1A' : '#DDDDDD',
+    nut:         isDark ? '#333333' : '#AAAAAA',
+    fret:        isDark ? '#1A1A1A' : '#CCCCCC',
+    string:      isDark ? '#333333' : '#BBBBBB',
+    inlay:       isDark ? '#3A3A3A' : '#CCCCCC',
+    fretLabel:   isDark ? '#3A3A3A' : '#999999',
+    markerStroke: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)',
+    markerTextRoot: '#0A0A0A',
+    markerTextOther: isDark ? '#FFFFFF' : '#0A0A0A',
+    muteX:       '#ff4444',
+  };
+
   const strings = 6;
-  
+
   // Calculate markers if not explicitly provided
   const displayMarkers = useMemo(() => {
     if (markers.length > 0) return markers;
@@ -88,13 +109,13 @@ export default function Fretboard({
     };
   }, [cagedOverlay]);
 
-  // Fretboard dimensions (compact mode uses smaller spacing for mini displays)
-  const fretWidth = compact ? 52 : 80;
-  const stringSpacing = compact ? 24 : 40;
-  const markerRadius = compact ? 10 : 18;
-  const labelFontSize = compact ? 9 : 16;
+  // Fretboard dimensions
+  const fretWidth = compact ? 52 : dense ? 62 : 80;
+  const stringSpacing = compact ? 24 : dense ? 30 : 40;
+  const markerRadius = compact ? 10 : dense ? 13 : 18;
+  const labelFontSize = compact ? 9 : dense ? 11 : 16;
   const width = numFrets * fretWidth + (showNut && startFret === 0 ? 20 : 0) + 40;
-  const fretLabelHeight = compact ? 14 : 18;
+  const fretLabelHeight = compact ? 14 : dense ? 16 : 18;
   const height = (strings - 1) * stringSpacing + 40 + fretLabelHeight;
 
   const nutOffset = showNut && startFret === 0 ? 20 : 0;
@@ -108,30 +129,30 @@ export default function Fretboard({
         viewBox={`0 0 ${width} ${height}`}
         className="w-full h-auto"
         style={{
-          minWidth: (!compact && numFrets > 8) ? '800px' : 'auto',
+          minWidth: (!compact && !dense && numFrets > 8) ? '800px' : (!compact && dense && numFrets > 8) ? '600px' : 'auto',
           maxWidth: maxWidth ? `${maxWidth}px` : undefined,
         }}
       >
         {/* Background */}
-        <rect 
-          x={nutOffset} 
-          y={20} 
-          width={numFrets * fretWidth} 
-          height={(strings - 1) * stringSpacing} 
-          fill="#0A0A0A" 
-          stroke="#1A1A1A" 
+        <rect
+          x={nutOffset}
+          y={20}
+          width={numFrets * fretWidth}
+          height={(strings - 1) * stringSpacing}
+          fill={clr.boardBg}
+          stroke={clr.boardBorder}
           strokeWidth={2}
           rx={0}
         />
 
         {/* Nut */}
         {showNut && startFret === 0 && (
-          <rect 
-            x={14} 
-            y={16} 
-            width={6} 
-            height={(strings - 1) * stringSpacing + 8} 
-            fill="#333333" 
+          <rect
+            x={14}
+            y={16}
+            width={6}
+            height={(strings - 1) * stringSpacing + 8}
+            fill={clr.nut}
             rx={0}
           />
         )}
@@ -139,17 +160,17 @@ export default function Fretboard({
         {/* Frets */}
         {Array.from({ length: numFrets + 1 }).map((_, i) => {
           const actualFret = startFret + i;
-          if (actualFret === 0) return null; // Nut handles fret 0
+          if (actualFret === 0) return null;
           const x = nutOffset + i * fretWidth;
           return (
-            <line 
+            <line
               key={`fret-${i}`}
-              x1={x} 
-              y1={20} 
-              x2={x} 
-              y2={height - 20} 
-              stroke="#1A1A1A" 
-              strokeWidth={2} 
+              x1={x}
+              y1={20}
+              x2={x}
+              y2={height - 20}
+              stroke={clr.fret}
+              strokeWidth={2}
             />
           );
         })}
@@ -160,23 +181,21 @@ export default function Fretboard({
           const relativeFret = fret - startFret;
           const x = nutOffset + (relativeFret - 0.5) * fretWidth;
           const yCenter = 20 + ((strings - 1) * stringSpacing) / 2;
-          const dotColor = '#3A3A3A';
 
           return (
             <g key={`inlay-${fret}`}>
               {fret === 12 || fret === 24 ? (
                 <>
-                  <circle cx={x} cy={yCenter - stringSpacing} r={compact ? 3 : 5} fill={dotColor} />
-                  <circle cx={x} cy={yCenter + stringSpacing} r={compact ? 3 : 5} fill={dotColor} />
+                  <circle cx={x} cy={yCenter - stringSpacing} r={compact ? 3 : 5} fill={clr.inlay} />
+                  <circle cx={x} cy={yCenter + stringSpacing} r={compact ? 3 : 5} fill={clr.inlay} />
                 </>
               ) : (
-                <circle cx={x} cy={yCenter} r={compact ? 3 : 5} fill={dotColor} />
+                <circle cx={x} cy={yCenter} r={compact ? 3 : 5} fill={clr.inlay} />
               )}
-              {/* Fret number below the board */}
               <text
                 x={x}
                 y={20 + (strings - 1) * stringSpacing + (compact ? 10 : 14)}
-                fill="#3A3A3A"
+                fill={clr.fretLabel}
                 fontSize={compact ? 8 : 11}
                 textAnchor="middle"
                 dominantBaseline="hanging"
@@ -211,14 +230,14 @@ export default function Fretboard({
         {Array.from({ length: strings }).map((_, i) => {
           const y = 20 + i * stringSpacing;
           return (
-            <line 
+            <line
               key={`string-${i}`}
-              x1={0} 
-              y1={y} 
-              x2={width} 
-              y2={y} 
-              stroke="#333333" 
-              strokeWidth={2} 
+              x1={0}
+              y1={y}
+              x2={width}
+              y2={y}
+              stroke={clr.string}
+              strokeWidth={2}
             />
           );
         })}
@@ -241,7 +260,7 @@ export default function Fretboard({
                 <text
                   x={x}
                   y={y}
-                  fill="#ff4444"
+                  fill={clr.muteX}
                   fontSize={compact ? 14 : 20}
                   fontWeight="bold"
                   textAnchor="middle"
@@ -257,14 +276,14 @@ export default function Fretboard({
                     cy={y}
                     r={markerRadius}
                     fill={isRoot ? '#16a34a' : (marker.color || 'transparent')}
-                    stroke={isRoot || marker.color ? 'none' : 'rgba(255,255,255,0.3)'}
+                    stroke={isRoot || marker.color ? 'none' : clr.markerStroke}
                     strokeWidth={compact ? 1.5 : 2}
                   />
                   {marker.label && labelMode !== 'none' && (
                     <text
                       x={x}
                       y={y}
-                      fill={isRoot ? '#0A0A0A' : '#FFFFFF'}
+                      fill={isRoot ? clr.markerTextRoot : clr.markerTextOther}
                       fontSize={labelFontSize}
                       fontWeight="bold"
                       textAnchor="middle"

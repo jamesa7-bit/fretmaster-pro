@@ -120,7 +120,7 @@ export function MetronomeProvider({ children }: { children: ReactNode }) {
       gainNode.gain.value = 0.5;
     } else {
       osc.frequency.value = 600.0;
-      gainNode.gain.value = 0.2;
+      gainNode.gain.value = 0.38;
     }
 
     osc.start(time);
