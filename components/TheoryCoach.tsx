@@ -81,7 +81,7 @@ export default function TheoryCoach() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] animate-in fade-in duration-500 max-w-4xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
             Theory Coach <Sparkles className="w-6 h-6 text-indigo-400" />
@@ -92,7 +92,7 @@ export default function TheoryCoach() {
 
       <div className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl flex flex-col overflow-hidden shadow-2xl">
         {/* Chat History */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
           {messages.map((msg, index) => (
             <div
               key={index}

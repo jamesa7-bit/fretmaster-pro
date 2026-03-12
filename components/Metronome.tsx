@@ -29,17 +29,17 @@ export default function Metronome() {
       {/* Pulse Line */}
       <div className={`absolute top-0 left-0 w-full h-[2px] transition-colors duration-75 ${currentBeat !== -1 ? 'bg-[#16a34a]' : 'bg-transparent'}`} />
 
-      <div className="p-8 flex-1 flex flex-col">
-        <div className="mb-12">
-          <h1 className="text-4xl font-extrabold tracking-tight">Metronome</h1>
-          <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-3">Precision timing and rhythm</p>
+      <div className="p-4 flex-1 flex flex-col">
+        <div className="mb-4">
+          <h1 className="text-3xl font-extrabold tracking-tight">Metronome</h1>
+          <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-1">Precision timing and rhythm</p>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full gap-12">
+        <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full gap-6">
 
           {/* BPM Display */}
           <div className="text-center">
-            <div className="text-8xl font-extrabold tracking-tight tabular-nums">{bpm}</div>
+            <div className="text-6xl font-extrabold tracking-tight tabular-nums">{bpm}</div>
             <div className="text-white/50 font-light tracking-[0.2em] uppercase text-sm mt-2">BPM</div>
           </div>
 
@@ -49,7 +49,7 @@ export default function Metronome() {
               <button
                 key={i}
                 onClick={() => toggleAccent(i)}
-                className={`flex-1 h-24 rounded-[8px] transition-all duration-75 flex items-center justify-center ${
+                className={`flex-1 h-16 rounded-[8px] transition-all duration-75 flex items-center justify-center ${
                   currentBeat === i
                     ? 'bg-[#16a34a] shadow-[0_0_30px_rgba(22,163,74,0.3)]'
                     : accentedBeats.includes(i)
@@ -63,7 +63,7 @@ export default function Metronome() {
           </div>
 
           {/* Speed Trainer */}
-          <div className="bg-[#1A1A1A] rounded-[8px] p-6 w-full">
+          <div className="bg-[#1A1A1A] rounded-[8px] p-4 w-full">
             <div className="flex items-center justify-between mb-4">
               <label className="text-xs font-light tracking-[0.2em] uppercase text-white/50">Speed Trainer</label>
               <button
@@ -120,9 +120,9 @@ export default function Metronome() {
           </div>
 
           {/* Settings Grid */}
-          <div className="grid grid-cols-2 gap-6 w-full">
-            <div className="bg-[#1A1A1A] rounded-[8px] p-6">
-              <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-4">Time Signature</label>
+          <div className="grid grid-cols-2 gap-3 w-full">
+            <div className="bg-[#1A1A1A] rounded-[8px] p-4">
+              <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Time Signature</label>
               <div className="flex flex-wrap gap-2">
                 {[3, 4, 5, 6, 7].map(ts => (
                   <button
@@ -140,8 +140,8 @@ export default function Metronome() {
               </div>
             </div>
 
-            <div className="bg-[#1A1A1A] rounded-[8px] p-6">
-              <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-4">Subdivision</label>
+            <div className="bg-[#1A1A1A] rounded-[8px] p-4">
+              <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Subdivision</label>
               <div className="flex gap-2">
                 {[
                   { val: 1, label: '♩' },

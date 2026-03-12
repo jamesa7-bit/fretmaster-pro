@@ -264,7 +264,7 @@ export default function Fretboard({
                     <text
                       x={x}
                       y={y}
-                      fill={isRoot || marker.color ? '#0A0A0A' : '#FFFFFF'}
+                      fill={isRoot ? '#0A0A0A' : '#FFFFFF'}
                       fontSize={labelFontSize}
                       fontWeight="bold"
                       textAnchor="middle"

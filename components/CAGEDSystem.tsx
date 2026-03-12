@@ -38,12 +38,9 @@ const QUALITY_LABELS: Record<ChordQuality, string> = {
 function buildCagedMarkers(
   root: number,
   intervals: number[],
-  shapeOffset: number, // offset from rootOnA
-  allStrings = false,
+  shapeOffset: number,
 ): FretMarker[] {
-  // Root on A string (string index 4, open note = 9)
   const rootOnA = ((root - 9 + 12) % 12);
-  // Ensure C shape (offset -3) doesn't go negative
   const base = rootOnA < 3 ? rootOnA + 12 : rootOnA;
   const windowStart = Math.max(0, base + shapeOffset);
   const windowEnd = windowStart + 5;
@@ -51,18 +48,14 @@ function buildCagedMarkers(
   const chordNotes = intervals.map(i => (root + i) % 12);
   const markers: FretMarker[] = [];
 
-  const stringRange = allStrings ? 6 : 6;
-  for (let s = 0; s < stringRange; s++) {
+  // One note per string: lowest chord-tone fret in the window
+  for (let s = 0; s < 6; s++) {
     const open = STANDARD_TUNING[s];
     for (let f = windowStart; f <= Math.min(22, windowEnd); f++) {
       const note = (open + f) % 12;
       if (chordNotes.includes(note)) {
-        markers.push({
-          string: s,
-          fret: f,
-          label: getNoteName(note),
-          isRoot: note === root,
-        });
+        markers.push({ string: s, fret: f, label: getNoteName(note), isRoot: note === root });
+        break; // take only the lowest chord-tone on this string
       }
     }
   }
@@ -118,10 +111,11 @@ export default function CAGEDSystem() {
   const rootOnA = ((effectiveRoot - 9 + 12) % 12);
   const base = rootOnA < 3 ? rootOnA + 12 : rootOnA;
   const shapeStarts = useMemo(
-    () => CAGED_SHAPES.map(s => Math.max(0, base + s.offset)),
+    () => CAGED_SHAPES.map(s => Math.max(0, base + s.offset - 1)),
     [base],
   );
   const windowStart = Math.max(0, base + shape.offset);
+  const displayStart = Math.max(0, windowStart - 1);
 
   return (
     <div className="flex flex-col h-full gap-3 animate-in fade-in duration-500 p-5">
@@ -212,10 +206,10 @@ export default function CAGEDSystem() {
               </div>
               <div className="flex-1 min-h-0 overflow-hidden">
                 <Fretboard
-                  markers={miniMarkers[i].map(m => ({ ...m, color: m.isRoot ? '#ffffff' : s.color + 'CC' }))}
+                  markers={miniMarkers[i].map(m => ({ ...m, color: m.isRoot ? '#ffffff' : s.color }))}
                   numFrets={4}
                   startFret={shapeStarts[i]}
-                  showNut={shapeStarts[i] === 0}
+                  showNut={shapeStarts[i] <= 1}
                   compact
                 />
               </div>
@@ -265,11 +259,11 @@ export default function CAGEDSystem() {
             <Fretboard
               markers={mainMarkers.map(m => ({
                 ...m,
-                color: m.isRoot ? '#ffffff' : shape.color + 'CC',
+                color: m.isRoot ? '#ffffff' : shape.color,
               }))}
               numFrets={5}
-              startFret={windowStart}
-              showNut={windowStart === 0}
+              startFret={displayStart}
+              showNut={displayStart === 0}
               maxWidth={500}
             />
           </div>

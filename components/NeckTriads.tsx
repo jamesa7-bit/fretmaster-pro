@@ -69,15 +69,15 @@ export default function NeckTriads() {
   const triadNoteNames = triadNoteIndices.map(n => getNoteName(n));
 
   return (
-    <div className="flex flex-col h-full gap-6 animate-in fade-in duration-500 p-8">
+    <div className="flex flex-col h-full gap-3 animate-in fade-in duration-500 p-4">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shrink-0">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-4xl font-extrabold tracking-tight">Neck Triads</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight">Neck Triads</h1>
             <InfoTooltip title="Neck Triads" sections={TRIADS_INFO} />
           </div>
-          <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-3">Every triad position across the full neck</p>
+          <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-1">Every triad position across the full neck</p>
         </div>
 
         <button
@@ -140,8 +140,8 @@ export default function NeckTriads() {
       </div>
 
       {/* Fretboard */}
-      <div className="flex-1 bg-[#1A1A1A] rounded-[8px] p-6 overflow-hidden flex flex-col min-h-[280px]">
-        <h2 className="text-2xl font-bold mb-4 shrink-0 tracking-tight">
+      <div className="flex-1 bg-[#1A1A1A] rounded-[8px] p-3 overflow-hidden flex flex-col min-h-[280px]">
+        <h2 className="text-base font-bold mb-2 shrink-0 tracking-tight">
           {effectiveLabel} {triadType}
           <span className="ml-3 text-sm font-light text-white/30 tracking-wider">
             {triadNoteNames.join(' – ')}

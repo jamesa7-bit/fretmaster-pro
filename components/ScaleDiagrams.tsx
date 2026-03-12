@@ -26,11 +26,11 @@ export default function ScaleDiagrams() {
   const scaleNotes = useMemo(() => getScaleNotes(effectiveRoot, scaleType), [effectiveRoot, scaleType]);
 
   return (
-    <div className="flex flex-col h-full gap-6 animate-in fade-in duration-500 p-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
+    <div className="flex flex-col h-full gap-3 animate-in fade-in duration-500 p-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shrink-0">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight">Scale Library</h1>
-          <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-3">Explore scales across the entire fretboard</p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Scale Library</h1>
+          <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-1">Explore scales across the entire fretboard</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -119,16 +119,14 @@ export default function ScaleDiagrams() {
         </div>
       </div>
 
-      <div className="flex-1 bg-[#1A1A1A] rounded-[8px] p-6 overflow-hidden flex flex-col min-h-[300px]">
-        <h2 className="text-2xl font-bold mb-6 shrink-0 tracking-tight">
-          {effectiveLabel} {scaleType}
+      <div className="flex-1 bg-[#1A1A1A] rounded-[8px] p-2 overflow-hidden flex flex-col min-h-[300px]">
+        <div className="px-3 pt-2 pb-1 shrink-0 flex items-center gap-2">
+          <span className="text-base font-bold tracking-tight">{effectiveLabel} {scaleType}</span>
           {showCaged && cagedShape && (
-            <span className="ml-3 text-sm font-light text-white/40 tracking-widest uppercase">
-              {cagedShape} shape
-            </span>
+            <span className="text-xs font-light text-white/40 tracking-widest uppercase">{cagedShape} shape</span>
           )}
-        </h2>
-        <div className="flex-1 overflow-hidden flex items-center justify-center">
+        </div>
+        <div className="flex-1 overflow-hidden flex items-center">
           <Fretboard
             rootNote={effectiveRoot}
             notes={scaleNotes}

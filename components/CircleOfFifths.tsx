@@ -230,7 +230,7 @@ export default function CircleOfFifths() {
     if (isMinor) {
       return [
         { degree: 'i',   chord: `${getNoteName(scaleNotes[0])}m` },
-        { degree: 'ii°', chord: `${getNoteName(scaleNotes[1])}dim` },
+        { degree: 'II',  chord: getNoteName(scaleNotes[1]) },
         { degree: 'III', chord: getNoteName(scaleNotes[2]) },
         { degree: 'iv',  chord: `${getNoteName(scaleNotes[3])}m` },
         { degree: 'v',   chord: `${getNoteName(scaleNotes[4])}m` },
@@ -245,7 +245,7 @@ export default function CircleOfFifths() {
       { degree: 'IV',   chord: getNoteName(scaleNotes[3]) },
       { degree: 'V',    chord: getNoteName(scaleNotes[4]) },
       { degree: 'vi',   chord: `${getNoteName(scaleNotes[5])}m` },
-      { degree: 'vii°', chord: `${getNoteName(scaleNotes[6])}dim` },
+      { degree: 'VII', chord: getNoteName(scaleNotes[6]) },
     ];
   };
 
@@ -277,14 +277,14 @@ export default function CircleOfFifths() {
   }
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-500 p-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="flex flex-col gap-3 animate-in fade-in duration-500 p-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-4xl font-extrabold tracking-tight">Circle of Fifths</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight">Circle of Fifths</h1>
             <InfoTooltip title="Circle of Fifths" sections={COF_INFO} />
           </div>
-          <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-3">Interactive harmonic relationships</p>
+          <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-1">Interactive harmonic relationships</p>
         </div>
 
         <div className="flex gap-2 flex-wrap">
@@ -304,9 +304,9 @@ export default function CircleOfFifths() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Circle */}
-        <div className="bg-[#1A1A1A] rounded-[8px] p-8 flex items-center justify-center min-h-[500px]">
+        <div className="bg-[#1A1A1A] rounded-[8px] p-4 flex items-center justify-center min-h-[400px]">
           <svg viewBox="-200 -200 400 400" className="w-full max-w-[400px] h-auto overflow-visible">
             <defs>
               <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
@@ -358,10 +358,10 @@ export default function CircleOfFifths() {
         </div>
 
         {/* Info Panel */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
           {/* Key Signature */}
-          <div className="bg-[#1A1A1A] rounded-[8px] p-6">
-            <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-4">Key Signature</label>
+          <div className="bg-[#1A1A1A] rounded-[8px] p-4">
+            <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Key Signature</label>
             <div className="flex items-center gap-4">
               <div className="text-4xl font-extrabold text-[#16a34a]">
                 {activeKey.sharps > 0 ? `${activeKey.sharps}♯` : activeKey.flats > 0 ? `${activeKey.flats}♭` : '0'}
@@ -373,10 +373,10 @@ export default function CircleOfFifths() {
           </div>
 
           {/* Diatonic Chords / Triads */}
-          <div className="bg-[#1A1A1A] rounded-[8px] p-6">
+          <div className="bg-[#1A1A1A] rounded-[8px] p-4">
 
             {/* Header row: label + mode toggle */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <label className="text-xs font-light tracking-[0.2em] uppercase text-white/50">Diatonic Chords</label>
               <div className="flex rounded-[6px] overflow-hidden border border-white/10">
                 {(['chords', 'triads'] as ChordMode[]).map(mode => (
@@ -485,8 +485,8 @@ export default function CircleOfFifths() {
           </div>
 
           {/* Scale Notes */}
-          <div className="bg-[#1A1A1A] rounded-[8px] p-6">
-            <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-4">Scale Notes</label>
+          <div className="bg-[#1A1A1A] rounded-[8px] p-4">
+            <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Scale Notes</label>
             <div className="flex flex-wrap gap-2">
               {scaleNotes.map((noteIndex, i) => (
                 <div key={i} className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center font-bold text-white/70 text-sm">
@@ -497,8 +497,8 @@ export default function CircleOfFifths() {
           </div>
 
           {showJazzSubs && (
-            <div className="bg-emerald-950/30 border border-emerald-900/50 rounded-[8px] p-6">
-              <label className="block text-xs font-light tracking-[0.2em] uppercase text-emerald-400 mb-4">Jazz Substitutions</label>
+            <div className="bg-emerald-950/30 border border-emerald-900/50 rounded-[8px] p-4">
+              <label className="block text-xs font-light tracking-[0.2em] uppercase text-emerald-400 mb-3">Jazz Substitutions</label>
               <ul className="space-y-2 text-sm text-white/60">
                 <li><strong className="text-emerald-300">Tritone Sub:</strong> Replace V7 ({getNoteName((activeKey.index + 7) % 12, activeKey.flats > 0)}7) with bII7 ({getNoteName((activeKey.index + 1) % 12, true)}7).</li>
                 <li><strong className="text-emerald-300">Secondary Dom:</strong> V7/ii ({getNoteName((activeKey.index + 9) % 12, activeKey.flats > 0)}7) → ii ({getNoteName((activeKey.index + 2) % 12, activeKey.flats > 0)}m).</li>

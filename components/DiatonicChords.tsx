@@ -71,7 +71,7 @@ export default function DiatonicChords() {
   }, [activeKey, setCurrentContext]);
 
   return (
-    <div className="flex flex-col h-full w-full p-4 lg:p-8 overflow-y-auto">
+    <div className="flex flex-col h-full w-full p-4 overflow-y-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 gap-2">
         <div>
           <div className="flex items-center gap-2">

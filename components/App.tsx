@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   MoreHorizontal, X, Guitar, Activity, Clock, CircleDashed,
-  MessageSquare, ListMusic, Music, Layers, Grid3x3, ChevronLeft,
+  MessageSquare, ListMusic, Music, Layers, Grid3x3, ChevronLeft, ListOrdered,
 } from 'lucide-react';
 import ScaleDiagrams from '@/components/ScaleDiagrams';
 import ArpeggioDrills from '@/components/ArpeggioDrills';
@@ -14,10 +14,12 @@ import RoutineBuilder from '@/components/RoutineBuilder';
 import DiatonicChords from '@/components/DiatonicChords';
 import NeckTriads from '@/components/NeckTriads';
 import CAGEDSystem from '@/components/CAGEDSystem';
+import ChordProgressionBuilder from '@/components/ChordProgressionBuilder';
 import HomeScreen from '@/components/HomeScreen';
 import { AppProvider } from '@/components/AppContext';
 import { MusicContextProvider } from '@/contexts/MusicContext';
 import { MetronomeProvider } from '@/contexts/MetronomeContext';
+import { PracticeProvider } from '@/contexts/PracticeContext';
 
 const tabs = [
   { id: 'diatonic',  label: 'Diatonic Chords', icon: Music,        desc: 'Chords native to every key',          accent: '#16a34a' },
@@ -27,6 +29,7 @@ const tabs = [
   { id: 'scales',    label: 'Scale Library',   icon: Guitar,        desc: 'Visualise scales in every position',  accent: '#3b82f6' },
   { id: 'arpeggios', label: 'Arpeggio Drills', icon: Activity,      desc: 'Pick chord tones up the neck',        accent: '#eab308' },
   { id: 'metronome', label: 'Metronome',       icon: Clock,         desc: 'Tempo & rhythm training',             accent: '#64748b' },
+  { id: 'progression', label: 'Chord Progression', icon: ListOrdered,   desc: 'Build & play chord progressions',     accent: '#f59e0b' },
   { id: 'routines',  label: 'Routines',        icon: ListMusic,     desc: 'Build & run practice plans',          accent: '#ec4899' },
   { id: 'coach',     label: 'Theory Coach',    icon: MessageSquare, desc: 'AI-powered music theory help',        accent: '#10b981' },
 ];
@@ -40,6 +43,7 @@ export default function App() {
   return (
     <MusicContextProvider>
     <MetronomeProvider>
+    <PracticeProvider>
     <AppProvider>
       <div className="h-screen w-screen bg-[#0A0A0A] text-white overflow-hidden flex flex-col font-sans selection:bg-[#16a34a]/30">
 
@@ -74,7 +78,8 @@ export default function App() {
           {activeTab === 'routines'  && <RoutineBuilder />}
           {activeTab === 'circle'    && <CircleOfFifths />}
           {activeTab === 'coach'     && <TheoryCoach />}
-          {activeTab === 'caged'     && <CAGEDSystem />}
+          {activeTab === 'caged'        && <CAGEDSystem />}
+          {activeTab === 'progression'  && <ChordProgressionBuilder />}
         </main>
 
         {/* Menu overlay */}
@@ -160,6 +165,7 @@ export default function App() {
         )}
       </div>
     </AppProvider>
+    </PracticeProvider>
     </MetronomeProvider>
     </MusicContextProvider>
   );

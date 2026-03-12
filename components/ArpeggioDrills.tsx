@@ -10,8 +10,8 @@ import { useMusicContext } from '@/contexts/MusicContext';
 
 type Orientation = 'vertical' | 'horizontal' | 'diagonal' | 'full';
 
-// Relative offsets from root-on-low-E for the 5 vertical/diagonal positions
-const POSITION_OFFSETS = [0, 2, 5, 7, 10];
+// Semitone offsets from low E open, high e to low E (for pitch-ordered sort)
+const STRING_BASS_OFFSETS = [24, 19, 15, 10, 5, 0];
 
 // String pairs for horizontal mode (string indices: 0=high E … 5=low E)
 const H_PAIRS: [number, number][] = [[5, 4], [4, 3], [3, 2], [2, 1], [1, 0]];
@@ -69,6 +69,13 @@ function buildMarkers(
     }
   }
 
+  // Full neck: sort by ascending pitch (low fret on low string first)
+  if (orientation === 'full') {
+    return out.sort((a, b) =>
+      (STRING_BASS_OFFSETS[a.string] + a.fret) - (STRING_BASS_OFFSETS[b.string] + b.fret)
+    );
+  }
+  // Position-based modes: sort by string (low E first), then fret ascending
   return out.sort((a, b) => a.string !== b.string ? b.string - a.string : a.fret - b.fret);
 }
 
@@ -104,15 +111,12 @@ export default function ArpeggioDrills() {
     [effectiveRoot, arpeggioType]
   );
 
-  const rootOnLowE = useMemo(
-    () => ((effectiveRoot - STANDARD_TUNING[5]) % 12 + 12) % 12,
-    [effectiveRoot]
-  );
-
-  const posWindows = useMemo(
-    () => POSITION_OFFSETS.map((off, i) => ({ label: `P${i + 1}`, startFret: rootOnLowE + off })),
-    [rootOnLowE]
-  );
+  // 5 positions: frets where root appears on each string, sorted low→high
+  const posWindows = useMemo(() => {
+    const frets = STANDARD_TUNING.map(open => ((effectiveRoot - open + 12) % 12));
+    const unique = [...new Set(frets)].sort((a, b) => a - b);
+    return unique.map((fret, i) => ({ label: `P${i + 1}`, startFret: fret }));
+  }, [effectiveRoot]);
 
   const markers = useMemo(
     () => buildMarkers(orientation, selectedPos, arpeggioNotes, effectiveRoot, posWindows),
