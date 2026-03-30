@@ -55,8 +55,8 @@ export default function Fretboard({
     nut:         isDark ? '#333333' : '#AAAAAA',
     fret:        isDark ? '#1A1A1A' : '#CCCCCC',
     string:      isDark ? '#333333' : '#BBBBBB',
-    inlay:       isDark ? '#3A3A3A' : '#CCCCCC',
-    fretLabel:   isDark ? '#3A3A3A' : '#999999',
+    inlay:       isDark ? '#606060' : '#AAAAAA',
+    fretLabel:   isDark ? '#888888' : '#666666',
     markerStroke: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)',
     markerTextRoot: '#0A0A0A',
     markerTextOther: isDark ? '#FFFFFF' : '#0A0A0A',
@@ -114,8 +114,8 @@ export default function Fretboard({
   // Fretboard dimensions
   const fretWidth = compact ? 52 : dense ? 62 : spacious ? 72 : 80;
   const stringSpacing = compact ? 24 : dense ? 30 : spacious ? 54 : 40;
-  const markerRadius = compact ? 10 : dense ? 13 : spacious ? 22 : 18;
-  const labelFontSize = compact ? 9 : dense ? 11 : spacious ? 18 : 16;
+  const markerRadius = compact ? 10 : dense ? 13 : spacious ? 17 : 18;
+  const labelFontSize = compact ? 9 : dense ? 11 : spacious ? 14 : 16;
   const width = numFrets * fretWidth + (showNut && startFret === 0 ? 20 : 0) + 40;
   const fretLabelHeight = compact ? 14 : dense ? 16 : 18;
   const height = (strings - 1) * stringSpacing + 40 + fretLabelHeight;
@@ -188,11 +188,11 @@ export default function Fretboard({
             <g key={`inlay-${fret}`}>
               {fret === 12 || fret === 24 ? (
                 <>
-                  <circle cx={x} cy={yCenter - stringSpacing} r={compact ? 3 : 5} fill={clr.inlay} />
-                  <circle cx={x} cy={yCenter + stringSpacing} r={compact ? 3 : 5} fill={clr.inlay} />
+                  <circle cx={x} cy={yCenter - stringSpacing} r={compact ? 3 : spacious ? 8 : 5} fill={clr.inlay} />
+                  <circle cx={x} cy={yCenter + stringSpacing} r={compact ? 3 : spacious ? 8 : 5} fill={clr.inlay} />
                 </>
               ) : (
-                <circle cx={x} cy={yCenter} r={compact ? 3 : 5} fill={clr.inlay} />
+                <circle cx={x} cy={yCenter} r={compact ? 3 : spacious ? 8 : 5} fill={clr.inlay} />
               )}
               <text
                 x={x}

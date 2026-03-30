@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { NOTES, SCALES, getScaleNotes, CAGEDShape } from '@/lib/music-theory';
+import { NOTES, SCALES, getScaleNotes, CAGEDShape, CAGED_OFFSETS, STANDARD_TUNING } from '@/lib/music-theory';
 import Fretboard, { LabelMode } from './Fretboard';
 import { useAppContext } from './AppContext';
 import { useMusicContext } from '@/contexts/MusicContext';
@@ -24,6 +24,13 @@ export default function ScaleDiagrams() {
   }, [effectiveRoot, scaleType, setCurrentContext, effectiveLabel]);
 
   const scaleNotes = useMemo(() => getScaleNotes(effectiveRoot, scaleType), [effectiveRoot, scaleType]);
+
+  const numFrets = useMemo(() => {
+    if (!showCaged || !cagedShape) return 15;
+    const baseFret = ((effectiveRoot - STANDARD_TUNING[5]) % 12 + 12) % 12;
+    const endFret = baseFret + CAGED_OFFSETS[cagedShape][1];
+    return Math.max(15, endFret + 2);
+  }, [showCaged, cagedShape, effectiveRoot]);
 
   return (
     <div className="flex flex-col h-full gap-3 animate-in fade-in duration-500 p-4">
@@ -131,7 +138,7 @@ export default function ScaleDiagrams() {
             rootNote={effectiveRoot}
             notes={scaleNotes}
             labelMode={labelMode}
-            numFrets={15}
+            numFrets={numFrets}
             spacious
             cagedOverlay={showCaged && cagedShape ? { shape: cagedShape, rootNote: effectiveRoot } : null}
           />
