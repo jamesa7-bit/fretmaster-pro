@@ -131,8 +131,8 @@ export default function ScaleDiagrams() {
             rootNote={effectiveRoot}
             notes={scaleNotes}
             labelMode={labelMode}
-            numFrets={22}
-            dense
+            numFrets={15}
+            spacious
             cagedOverlay={showCaged && cagedShape ? { shape: cagedShape, rootNote: effectiveRoot } : null}
           />
         </div>

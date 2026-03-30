@@ -150,7 +150,8 @@ export default function NeckTriads() {
         <div className="flex-1 overflow-hidden flex items-center justify-center">
           <Fretboard
             markers={markers}
-            numFrets={22}
+            numFrets={15}
+            spacious
           />
         </div>
       </div>

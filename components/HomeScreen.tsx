@@ -73,11 +73,10 @@ export default function HomeScreen({ onNavigate }: Props) {
 
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3 flex-shrink-0">
-        <div
-          className="flex items-center justify-center rounded-[12px] border-2 border-dashed border-white/15 text-white/20 text-xs tracking-widest uppercase"
-          style={{ width: 120, height: 64 }}
-        >
-          Logo
+        <div className="flex items-center justify-center" style={{ width: 120, height: 64 }}>
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="24" fill="#16a34a" />
+          </svg>
         </div>
         <div className="text-right">
           <div className="text-2xl font-extrabold tracking-tight text-white">FretMaster Pro</div>
@@ -181,15 +180,15 @@ export default function HomeScreen({ onNavigate }: Props) {
               <button
                 key={tab.id}
                 onClick={() => onNavigate(tab.id)}
-                className="relative rounded-[14px] p-4 text-left transition-all overflow-hidden group hover:scale-[1.02] active:scale-[0.98]"
-                style={{ background: '#141414', border: '1px solid #ffffff0f' }}
+                className="relative rounded-[14px] p-4 text-left transition-all overflow-hidden group hover:scale-[1.02] active:scale-[0.98] bg-[#141414]"
+                style={{ border: '1px solid #ffffff0f' }}
                 onMouseEnter={e => {
                   (e.currentTarget as HTMLElement).style.background = `linear-gradient(135deg, ${tab.accent}12 0%, ${tab.accent}06 100%)`;
                   (e.currentTarget as HTMLElement).style.borderColor = `${tab.accent}35`;
                 }}
                 onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = '#141414';
-                  (e.currentTarget as HTMLElement).style.borderColor = '#ffffff0f';
+                  (e.currentTarget as HTMLElement).style.background = '';
+                  (e.currentTarget as HTMLElement).style.border = '1px solid #ffffff0f';
                 }}
               >
                 <div className="w-9 h-9 rounded-[8px] flex items-center justify-center mb-3" style={{ backgroundColor: `${tab.accent}18` }}>

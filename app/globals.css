@@ -110,6 +110,10 @@ html.light textarea {
 html.light input::placeholder,
 html.light textarea::placeholder { color: rgba(0, 0, 0, 0.3); }
 
+/* Hover / group-hover text */
+html.light .hover\:text-white:hover { color: #0A0A0A; }
+html.light .group:hover .group-hover\:text-white { color: #0A0A0A; }
+
 /* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar { height: 4px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

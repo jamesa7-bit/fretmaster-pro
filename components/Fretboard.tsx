@@ -28,6 +28,7 @@ interface FretboardProps {
   compact?: boolean;   // smaller fret/string spacing for mini displays
   dense?: boolean;     // medium density — between compact and full
   maxWidth?: number;   // cap SVG width (px) to control proportional height
+  spacious?: boolean;  // larger string spacing so the neck is taller at screen width
 }
 
 export default function Fretboard({
@@ -42,6 +43,7 @@ export default function Fretboard({
   compact = false,
   dense = false,
   maxWidth,
+  spacious = false,
 }: FretboardProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -110,10 +112,10 @@ export default function Fretboard({
   }, [cagedOverlay]);
 
   // Fretboard dimensions
-  const fretWidth = compact ? 52 : dense ? 62 : 80;
-  const stringSpacing = compact ? 24 : dense ? 30 : 40;
-  const markerRadius = compact ? 10 : dense ? 13 : 18;
-  const labelFontSize = compact ? 9 : dense ? 11 : 16;
+  const fretWidth = compact ? 52 : dense ? 62 : spacious ? 72 : 80;
+  const stringSpacing = compact ? 24 : dense ? 30 : spacious ? 54 : 40;
+  const markerRadius = compact ? 10 : dense ? 13 : spacious ? 22 : 18;
+  const labelFontSize = compact ? 9 : dense ? 11 : spacious ? 18 : 16;
   const width = numFrets * fretWidth + (showNut && startFret === 0 ? 20 : 0) + 40;
   const fretLabelHeight = compact ? 14 : dense ? 16 : 18;
   const height = (strings - 1) * stringSpacing + 40 + fretLabelHeight;
@@ -129,7 +131,7 @@ export default function Fretboard({
         viewBox={`0 0 ${width} ${height}`}
         className="w-full h-auto"
         style={{
-          minWidth: (!compact && !dense && numFrets > 8) ? '800px' : (!compact && dense && numFrets > 8) ? '600px' : 'auto',
+          minWidth: (!compact && !dense && !spacious && numFrets > 8) ? '800px' : (!compact && dense && numFrets > 8) ? '600px' : 'auto',
           maxWidth: maxWidth ? `${maxWidth}px` : undefined,
         }}
       >

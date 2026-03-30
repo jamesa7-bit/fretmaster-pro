@@ -133,7 +133,7 @@ function AppShell() {
                       style={{
                         background: isActive
                           ? `linear-gradient(135deg, ${tab.accent}1A 0%, ${tab.accent}08 100%)`
-                          : '#141414',
+                          : theme === 'light' ? '#F9F9F9' : '#141414',
                         border: `1px solid ${isActive ? tab.accent + '50' : '#ffffff10'}`,
                       }}
                     >
@@ -146,17 +146,17 @@ function AppShell() {
 
                       <div
                         className="w-8 h-8 rounded-[8px] flex items-center justify-center mb-2.5"
-                        style={{ backgroundColor: isActive ? tab.accent + '22' : '#ffffff08' }}
+                        style={{ backgroundColor: isActive ? tab.accent + '22' : theme === 'light' ? 'rgba(0,0,0,0.06)' : '#ffffff08' }}
                       >
                         <Icon
                           className="w-4 h-4"
-                          style={{ color: isActive ? tab.accent : '#ffffff40' }}
+                          style={{ color: isActive ? tab.accent : theme === 'light' ? 'rgba(0,0,0,0.28)' : '#ffffff40' }}
                         />
                       </div>
 
                       <div
                         className="text-[11px] font-bold leading-tight mb-0.5"
-                        style={{ color: isActive ? '#ffffff' : '#ffffff70' }}
+                        style={{ color: isActive ? (theme === 'light' ? '#0A0A0A' : '#ffffff') : (theme === 'light' ? 'rgba(0,0,0,0.55)' : '#ffffff70') }}
                       >
                         {tab.label}
                       </div>
