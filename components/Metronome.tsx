@@ -29,17 +29,33 @@ export default function Metronome() {
       {/* Pulse Line */}
       <div className={`absolute top-0 left-0 w-full h-[2px] transition-colors duration-75 ${currentBeat !== -1 ? 'bg-[#16a34a]' : 'bg-transparent'}`} />
 
-      <div className="p-4 flex-1 flex flex-col">
+      <div className="p-4 flex-1 flex flex-col overflow-y-auto">
         <div className="mb-4">
           <h1 className="text-3xl font-extrabold tracking-tight">Metronome</h1>
           <p className="text-[#16a34a] font-light tracking-[0.2em] uppercase text-xs mt-1">Precision timing and rhythm</p>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full gap-6">
+        <div className="flex flex-col items-center max-w-2xl mx-auto w-full gap-6">
 
-          {/* BPM Display */}
+          {/* BPM Display with inline controls */}
           <div className="text-center">
-            <div className="text-6xl font-extrabold tracking-tight tabular-nums">{bpm}</div>
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={() => setBpm(b => Math.max(20, b - 5))}
+                className="w-12 h-12 rounded-[8px] bg-[#1A1A1A] hover:bg-[#222] text-white/50 hover:text-white transition-colors text-2xl font-bold"
+                aria-label="Decrease BPM by 5"
+              >
+                −
+              </button>
+              <div className="text-6xl font-extrabold tracking-tight tabular-nums w-36 text-center">{bpm}</div>
+              <button
+                onClick={() => setBpm(b => Math.min(300, b + 5))}
+                className="w-12 h-12 rounded-[8px] bg-[#1A1A1A] hover:bg-[#222] text-white/50 hover:text-white transition-colors text-2xl font-bold"
+                aria-label="Increase BPM by 5"
+              >
+                +
+              </button>
+            </div>
             <div className="text-white/50 font-light tracking-[0.2em] uppercase text-sm mt-2">BPM</div>
           </div>
 
@@ -84,10 +100,24 @@ export default function Metronome() {
             )}
           </div>
 
+          {/* Play / Stop button */}
+          <button
+            onClick={togglePlay}
+            className={`w-full py-4 rounded-[8px] flex items-center justify-center gap-3 font-bold text-sm transition-colors ${
+              isPlaying
+                ? 'bg-red-500/15 text-red-400 hover:bg-red-500/25'
+                : 'bg-[#16a34a] text-[#0A0A0A] hover:bg-[#15803d]'
+            }`}
+          >
+            {isPlaying
+              ? <><Square className="w-5 h-5 fill-current" /> Stop</>
+              : <><Play className="w-5 h-5 fill-current" /> Play</>}
+          </button>
+
           {/* Speed Trainer */}
           <div className="bg-[#1A1A1A] rounded-[8px] p-4 w-full">
             <div className="flex items-center justify-between mb-4">
-              <label className="text-xs font-light tracking-[0.2em] uppercase text-white/50">Speed Trainer</label>
+              <label className="text-[10px] font-bold tracking-widest uppercase text-white/30">Speed Trainer</label>
               <button
                 onClick={() => setSpeedTrainerActive(s => !s)}
                 className={`w-12 h-6 rounded-full transition-all relative flex-shrink-0 ${
@@ -102,7 +132,7 @@ export default function Metronome() {
             {speedTrainerActive && (
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs text-white/30 mb-2 tracking-widest uppercase">+BPM</label>
+                  <label className="block text-[10px] font-bold tracking-widest uppercase text-white/30 mb-2">+BPM</label>
                   <input
                     type="number"
                     value={incrementAmount}
@@ -113,7 +143,7 @@ export default function Metronome() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/30 mb-2 tracking-widest uppercase">Every N Bars</label>
+                  <label className="block text-[10px] font-bold tracking-widest uppercase text-white/30 mb-2">Every N Bars</label>
                   <input
                     type="number"
                     value={incrementInterval}
@@ -124,7 +154,7 @@ export default function Metronome() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/30 mb-2 tracking-widest uppercase">Target BPM</label>
+                  <label className="block text-[10px] font-bold tracking-widest uppercase text-white/30 mb-2">Target BPM</label>
                   <input
                     type="number"
                     value={targetBPM}
@@ -144,7 +174,7 @@ export default function Metronome() {
           {/* Settings Grid */}
           <div className="grid grid-cols-2 gap-3 w-full">
             <div className="bg-[#1A1A1A] rounded-[8px] p-4">
-              <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Time Signature</label>
+              <label className="block text-[10px] font-bold tracking-widest uppercase text-white/30 mb-3">Time Signature</label>
               <div className="flex flex-wrap gap-2">
                 {[3, 4, 5, 6, 7].map(ts => (
                   <button
@@ -163,7 +193,7 @@ export default function Metronome() {
             </div>
 
             <div className="bg-[#1A1A1A] rounded-[8px] p-4">
-              <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Subdivision</label>
+              <label className="block text-[10px] font-bold tracking-widest uppercase text-white/30 mb-3">Subdivision</label>
               <div className="flex gap-2">
                 {[
                   { val: 1, label: '♩' },
@@ -185,32 +215,6 @@ export default function Metronome() {
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Bottom Controls */}
-        <div className="absolute bottom-8 left-8">
-          <button
-            onClick={togglePlay}
-            className="w-20 h-20 rounded-full bg-[#1A1A1A] flex items-center justify-center text-[#16a34a] hover:bg-[#222] transition-colors shadow-lg"
-          >
-            {isPlaying ? <Square className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current ml-2" />}
-          </button>
-        </div>
-        <div className="absolute bottom-8 right-8">
-          <div className="flex flex-col items-center gap-2">
-            <button
-              onClick={() => setBpm(b => Math.min(300, b + 5))}
-              className="w-20 h-10 rounded-t-full bg-[#1A1A1A] flex items-center justify-center text-white/50 hover:text-white transition-colors text-lg font-bold shadow-lg"
-            >
-              +
-            </button>
-            <button
-              onClick={() => setBpm(b => Math.max(20, b - 5))}
-              className="w-20 h-10 rounded-b-full bg-[#1A1A1A] flex items-center justify-center text-white/50 hover:text-white transition-colors text-lg font-bold shadow-lg"
-            >
-              -
-            </button>
           </div>
         </div>
       </div>

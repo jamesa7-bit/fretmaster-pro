@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { NOTES, ARPEGGIOS, getArpeggioNotes, STANDARD_TUNING, getNoteName } from '@/lib/music-theory';
 import Fretboard, { FretMarker } from './Fretboard';
 import ArpeggioTab from './ArpeggioTab';
-import { Play, Square, Mic } from 'lucide-react';
+import { Play, Square } from 'lucide-react';
 import { useAppContext } from './AppContext';
 import { useMusicContext } from '@/contexts/MusicContext';
 
@@ -86,7 +86,6 @@ export default function ArpeggioDrills() {
   const [selectedPos, setSelectedPos] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeNoteIdx, setActiveNoteIdx] = useState(-1);
-  const [isListening, setIsListening] = useState(false);
   const [syncWithCircle, setSyncWithCircle] = useState(false);
   const [showTab, setShowTab] = useState(true);
   const ascendingRef = useRef(true);
@@ -169,14 +168,6 @@ export default function ArpeggioDrills() {
     }
   };
 
-  const toggleMic = async () => {
-    if (isListening) { setIsListening(false); return; }
-    try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      setIsListening(true);
-    } catch { alert('Microphone access required for pitch feedback.'); }
-  };
-
   const displayMarkers = markers.map((m, i) => ({
     ...m,
     color: i === activeNoteIdx ? '#10b981' : undefined,
@@ -227,15 +218,6 @@ export default function ArpeggioDrills() {
           >
             {isPlaying ? <Square className="w-3 h-3" /> : <Play className="w-3 h-3" />}
             {isPlaying ? 'Stop' : 'Play'}
-          </button>
-          <button
-            onClick={toggleMic}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] text-[10px] font-bold tracking-wide uppercase transition-all ${
-              isListening ? 'bg-[#16a34a]/20 text-[#16a34a]' : 'bg-[#1A1A1A] text-white/40 hover:text-white'
-            }`}
-          >
-            <Mic className={`w-3 h-3 ${isListening ? 'animate-pulse' : ''}`} />
-            Mic
           </button>
           <button
             onClick={() => setShowTab(t => !t)}
