@@ -333,7 +333,16 @@ export default function CircleOfFifths() {
               const majorFill = isSelected && orientation === 'major' ? '#0A0A0A' : 'rgba(255,255,255,0.65)';
               const minorFill = isSelected && orientation === 'minor' ? '#0A0A0A' : 'rgba(255,255,255,0.35)';
               return (
-                <g key={keyObj.key} onClick={() => { setActiveKeyIndex(i); setSelectedKey({ rootIndex: keyObj.index, label: keyObj.key }); }} className="cursor-pointer hover:opacity-80">
+                <g
+                  key={keyObj.key}
+                  onClick={() => { setActiveKeyIndex(i); setSelectedKey({ rootIndex: keyObj.index, label: keyObj.key }); }}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { setActiveKeyIndex(i); setSelectedKey({ rootIndex: keyObj.index, label: keyObj.key }); e.preventDefault(); }}}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${keyObj.key} major / ${keyObj.minor} minor`}
+                  aria-pressed={isSelected}
+                  className="cursor-pointer hover:opacity-80 focus:outline-none"
+                >
                   <path d={slicePath} fill={fillColor} stroke="#0A0A0A" strokeWidth="2" className="transition-colors duration-300" filter={isSelected ? 'url(#glow)' : ''} />
                   <text x={outerX} y={outerY} fill={majorFill} fontSize={isSelected && orientation === 'major' ? '24' : '18'} fontWeight="bold" textAnchor="middle" dominantBaseline="central">{keyObj.key}</text>
                   <text x={innerX} y={innerY} fill={minorFill} fontSize={isSelected && orientation === 'minor' ? '18' : '14'} fontWeight="bold" textAnchor="middle" dominantBaseline="central">{keyObj.minor}</text>

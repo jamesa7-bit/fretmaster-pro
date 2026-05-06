@@ -66,6 +66,8 @@ export default function Metronome() {
                 <button
                   key={i}
                   onClick={() => toggleAccent(i)}
+                  aria-label={`Beat ${i + 1}${accentedBeats.includes(i) ? ', accented' : ''}`}
+                  aria-pressed={accentedBeats.includes(i)}
                   className={`flex-1 h-16 rounded-[8px] transition-all duration-75 flex items-center justify-center ${
                     currentBeat === i && currentSubdivision === 0
                       ? 'bg-[#16a34a] shadow-[0_0_30px_rgba(22,163,74,0.3)]'

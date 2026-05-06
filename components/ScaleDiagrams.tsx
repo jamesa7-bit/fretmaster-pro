@@ -13,7 +13,7 @@ export default function ScaleDiagrams() {
   const [rootNote, setRootNote] = useState(0);
   const [scaleType, setScaleType] = useState('Major');
   const [labelMode, setLabelMode] = useState<LabelMode>('name');
-  const [syncWithCircle, setSyncWithCircle] = useState(false);
+  const [syncWithCircle, setSyncWithCircle] = useState(true);
   const [showCaged, setShowCaged] = useState(false);
   const [cagedShape, setCagedShape] = useState<CAGEDShape | null>(null);
 
@@ -224,11 +224,16 @@ export default function ScaleDiagrams() {
         </div>
       </div>
 
-      {/* Run mode hint */}
+      {/* Run mode hint — only shows if user manually stops the metronome while running */}
       {isRunMode && !metroPlaying && (
-        <div className="shrink-0 px-4 py-2 bg-[#3b82f6]/10 border border-[#3b82f6]/20 rounded-[8px] text-xs text-[#3b82f6] flex items-center gap-2">
-          <Play className="w-3 h-3 fill-current" />
-          Press play on the metronome to start the scale run
+        <div className="shrink-0 px-4 py-2 bg-[#3b82f6]/10 border border-[#3b82f6]/20 rounded-[8px] text-xs text-[#3b82f6] flex items-center justify-between">
+          <span>Metronome paused — scale run is waiting</span>
+          <button
+            onClick={metroToggle}
+            className="flex items-center gap-1 px-2 py-1 bg-[#3b82f6] text-white rounded-[4px] font-bold hover:bg-[#2563eb] transition-colors"
+          >
+            <Play className="w-3 h-3 fill-current" /> Resume
+          </button>
         </div>
       )}
 

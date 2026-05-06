@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Play, Pause, Plus, Trash2, Save, X, ListMusic, SkipForward, Square } from 'lucide-react';
-import { NOTES, SCALES, ARPEGGIOS } from '@/lib/music-theory';
+import { NOTES, SCALES, ARPEGGIOS, getScaleNotes, getArpeggioNotes } from '@/lib/music-theory';
 import { useAppContext } from './AppContext';
+import Fretboard from './Fretboard';
 
 export type RoutineItemType = 'Scale' | 'Arpeggio' | 'Metronome';
 
@@ -46,6 +47,9 @@ export default function RoutineBuilder() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const [routineComplete, setRoutineComplete] = useState(false);
+
+  // Confirm delete state
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem('fretmaster_routines');
@@ -265,6 +269,41 @@ export default function RoutineBuilder() {
               <Play className="w-4 h-4 fill-current" /> Start Routine
             </button>
           )}
+
+          {/* Active item visual */}
+          {playingIndex !== null && (() => {
+            const item = activeRoutine.items[playingIndex];
+            if (item.type === 'Scale') return (
+              <div className="bg-[#1A1A1A] rounded-[8px] p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">Now Practicing · {NOTES[item.rootNote ?? 0]} {item.scaleType} Scale</p>
+                <Fretboard
+                  rootNote={item.rootNote ?? 0}
+                  notes={getScaleNotes(item.rootNote ?? 0, item.scaleType ?? 'Major')}
+                  numFrets={12}
+                  dense
+                />
+              </div>
+            );
+            if (item.type === 'Arpeggio') return (
+              <div className="bg-[#1A1A1A] rounded-[8px] p-3">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">Now Practicing · {NOTES[item.rootNote ?? 0]} {item.arpeggioType} Arpeggio</p>
+                <Fretboard
+                  rootNote={item.rootNote ?? 0}
+                  notes={getArpeggioNotes(item.rootNote ?? 0, item.arpeggioType ?? 'Major')}
+                  numFrets={12}
+                  dense
+                />
+              </div>
+            );
+            if (item.type === 'Metronome') return (
+              <div className="bg-[#1A1A1A] rounded-[8px] p-6 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-3">Now Practicing · Metronome</p>
+                <div className="text-6xl font-extrabold tabular-nums">{item.bpm}</div>
+                <div className="text-white/40 text-sm mt-2 tracking-widest uppercase">BPM · {item.timeSignature ?? 4}/4</div>
+              </div>
+            );
+            return null;
+          })()}
 
           {/* Items list */}
           <div className="bg-[#1A1A1A] rounded-[8px] p-4 space-y-3">
@@ -504,12 +543,29 @@ export default function RoutineBuilder() {
                       <h3 className="text-base font-extrabold tracking-tight text-white">{routine.name}</h3>
                       <p className="text-xs text-white/30 mt-0.5">{routine.items.length} items · {totalMinutes} min</p>
                     </div>
-                    <button
-                      onClick={() => deleteRoutine(routine.id)}
-                      className="p-1.5 text-white/20 hover:text-red-400 hover:bg-red-400/10 rounded-[6px] transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {confirmDeleteId === routine.id ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => { deleteRoutine(routine.id); setConfirmDeleteId(null); }}
+                          className="px-2 py-1 text-xs font-bold text-red-400 bg-red-400/10 hover:bg-red-400/20 rounded-[4px] transition-colors"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          className="px-2 py-1 text-xs font-bold text-white/40 hover:text-white bg-[#222] rounded-[4px] transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDeleteId(routine.id)}
+                        className="p-1.5 text-white/20 hover:text-red-400 hover:bg-red-400/10 rounded-[6px] transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
 
                   <div className="flex-1 mb-4">

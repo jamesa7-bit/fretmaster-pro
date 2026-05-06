@@ -143,6 +143,8 @@ export default function ChordProgressionBuilder() {
   const [syncWithCircle, setSyncWithCircle] = useState(true);
   const [showCustom, setShowCustom] = useState(false);
   const [customChord, setCustomChord] = useState('');
+  const [customError, setCustomError] = useState('');
+  const [confirmClear, setConfirmClear] = useState(false);
 
   const nextIdRef = useRef(1);
   const playTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -206,6 +208,11 @@ export default function ChordProgressionBuilder() {
   const addCustomChord = () => {
     const name = customChord.trim();
     if (!name) return;
+    if (!getVoicing(name)) {
+      setCustomError(`Can't find a voicing for "${name}" — try e.g. Am, F#m, Bb`);
+      return;
+    }
+    setCustomError('');
     const degree = diatonicChords.find(c => c.chord === name)?.degree ?? '?';
     addChord(name, degree);
     setCustomChord('');
@@ -328,13 +335,35 @@ export default function ChordProgressionBuilder() {
                 ))}
               </div>
             </div>
-            {/* Clear */}
-            <button
-              onClick={() => setProgression([])}
-              className="ml-auto text-[9px] text-white/25 hover:text-white/50 uppercase tracking-widest transition-colors"
-            >
-              Clear
-            </button>
+            {/* Count + Clear */}
+            <div className="ml-auto flex items-center gap-2">
+              <span className={`text-[9px] tabular-nums ${progression.length >= 16 ? 'text-amber-400' : 'text-white/25'}`}>
+                {progression.length}/16
+              </span>
+              {confirmClear ? (
+                <>
+                  <button
+                    onClick={() => { setProgression([]); setConfirmClear(false); }}
+                    className="text-[9px] text-red-400 uppercase tracking-widest font-bold transition-colors"
+                  >
+                    Confirm
+                  </button>
+                  <button
+                    onClick={() => setConfirmClear(false)}
+                    className="text-[9px] text-white/25 hover:text-white/50 uppercase tracking-widest transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setConfirmClear(true)}
+                  className="text-[9px] text-white/25 hover:text-white/50 uppercase tracking-widest transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </>
         )}
       </div>
@@ -362,21 +391,27 @@ export default function ChordProgressionBuilder() {
               onClick={() => setShowCustom(true)}
               disabled={progression.length >= 16}
               className="flex items-center gap-1 px-3 py-1.5 rounded-[6px] bg-[#1A1A1A] border border-dashed border-white/10 hover:border-white/25 text-white/25 hover:text-white/60 transition-all text-[10px] disabled:opacity-40"
+              title={progression.length >= 16 ? 'Progression is full (16 chords max)' : undefined}
             >
               <Plus className="w-3 h-3" /> custom
             </button>
           ) : (
-            <div className="flex items-center gap-1.5">
-              <input
-                type="text" value={customChord}
-                onChange={e => setCustomChord(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') addCustomChord(); if (e.key === 'Escape') { setShowCustom(false); setCustomChord(''); } }}
-                placeholder="e.g. F#m"
-                autoFocus
-                className="w-20 bg-[#222] text-white text-xs font-bold rounded-[4px] px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#16a34a]"
-              />
-              <button onClick={addCustomChord} className="px-2 py-1.5 bg-[#16a34a] text-[#0A0A0A] text-[10px] font-bold rounded-[4px]">Add</button>
-              <button onClick={() => { setShowCustom(false); setCustomChord(''); }} className="px-2 py-1.5 text-white/30 text-[10px] hover:text-white">✕</button>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text" value={customChord}
+                  onChange={e => { setCustomChord(e.target.value); setCustomError(''); }}
+                  onKeyDown={e => { if (e.key === 'Enter') addCustomChord(); if (e.key === 'Escape') { setShowCustom(false); setCustomChord(''); setCustomError(''); } }}
+                  placeholder="e.g. F#m"
+                  autoFocus
+                  aria-label="Custom chord name"
+                  aria-invalid={!!customError}
+                  className={`w-24 bg-[#222] text-white text-xs font-bold rounded-[4px] px-2 py-1.5 focus:outline-none focus:ring-1 ${customError ? 'focus:ring-red-500 ring-1 ring-red-500/50' : 'focus:ring-[#16a34a]'}`}
+                />
+                <button onClick={addCustomChord} className="px-2 py-1.5 bg-[#16a34a] text-[#0A0A0A] text-[10px] font-bold rounded-[4px]">Add</button>
+                <button onClick={() => { setShowCustom(false); setCustomChord(''); setCustomError(''); }} className="px-2 py-1.5 text-white/30 text-[10px] hover:text-white">✕</button>
+              </div>
+              {customError && <p className="text-[10px] text-red-400 max-w-[200px] leading-snug">{customError}</p>}
             </div>
           )}
         </div>

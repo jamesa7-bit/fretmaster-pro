@@ -88,7 +88,7 @@ export default function ArpeggioDrills() {
   const [selectedPos, setSelectedPos] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeNoteIdx, setActiveNoteIdx] = useState(-1);
-  const [syncWithCircle, setSyncWithCircle] = useState(false);
+  const [syncWithCircle, setSyncWithCircle] = useState(true);
   const [showTab, setShowTab] = useState(true);
   const ascendingRef = useRef(true);
   const prevBeatRef = useRef(-1);
