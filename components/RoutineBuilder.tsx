@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Play, Plus, Trash2, Save, X, ListMusic } from 'lucide-react';
+import { Play, Pause, Plus, Trash2, Save, X, ListMusic, SkipForward, Square } from 'lucide-react';
 import { NOTES, SCALES, ARPEGGIOS } from '@/lib/music-theory';
 import { useAppContext } from './AppContext';
 
@@ -24,6 +24,12 @@ export interface Routine {
   items: RoutineItem[];
 }
 
+const formatTime = (secs: number) => {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+};
+
 export default function RoutineBuilder() {
   const { setCurrentContext } = useAppContext();
   const [routines, setRoutines] = useState<Routine[]>([]);
@@ -34,6 +40,12 @@ export default function RoutineBuilder() {
   // Edit state
   const [editName, setEditName] = useState('');
   const [editItems, setEditItems] = useState<RoutineItem[]>([]);
+
+  // Playback state
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
+  const [routineComplete, setRoutineComplete] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('fretmaster_routines');
@@ -60,6 +72,68 @@ export default function RoutineBuilder() {
       setCurrentContext('Viewing Practice Routines');
     }
   }, [activeRoutine, isEditing, setCurrentContext]);
+
+  // Reset playback when switching routines
+  useEffect(() => {
+    setPlayingIndex(null);
+    setIsPlaying(false);
+    setSecondsRemaining(0);
+    setRoutineComplete(false);
+  }, [activeRoutine]);
+
+  // Countdown tick
+  useEffect(() => {
+    if (!isPlaying || playingIndex === null) return;
+    const id = setInterval(() => setSecondsRemaining(s => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(id);
+  }, [isPlaying, playingIndex]);
+
+  // Advance to next item when timer hits 0
+  useEffect(() => {
+    if (secondsRemaining !== 0 || !isPlaying || playingIndex === null || !activeRoutine) return;
+    const next = playingIndex + 1;
+    if (next >= activeRoutine.items.length) {
+      setIsPlaying(false);
+      setPlayingIndex(null);
+      setRoutineComplete(true);
+    } else {
+      setPlayingIndex(next);
+      setSecondsRemaining(activeRoutine.items[next].durationMinutes * 60);
+    }
+  }, [secondsRemaining, isPlaying, playingIndex, activeRoutine]);
+
+  const startFromIndex = (index: number) => {
+    if (!activeRoutine) return;
+    setRoutineComplete(false);
+    setPlayingIndex(index);
+    setSecondsRemaining(activeRoutine.items[index].durationMinutes * 60);
+    setIsPlaying(true);
+  };
+
+  const stopPlayback = () => {
+    setIsPlaying(false);
+    setPlayingIndex(null);
+    setSecondsRemaining(0);
+    setRoutineComplete(false);
+  };
+
+  const skipToNext = () => {
+    if (!activeRoutine || playingIndex === null) return;
+    const next = playingIndex + 1;
+    if (next >= activeRoutine.items.length) {
+      setIsPlaying(false);
+      setPlayingIndex(null);
+      setRoutineComplete(true);
+    } else {
+      setPlayingIndex(next);
+      setSecondsRemaining(activeRoutine.items[next].durationMinutes * 60);
+    }
+  };
+
+  const handleBack = () => {
+    stopPlayback();
+    setActiveRoutine(null);
+  };
 
   const startNewRoutine = () => {
     setEditName('My Custom Routine');
@@ -124,47 +198,134 @@ export default function RoutineBuilder() {
   const labelClass = 'block text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1.5';
 
   if (activeRoutine) {
+    const totalMinutes = activeRoutine.items.reduce((a, i) => a + i.durationMinutes, 0);
+    const sessionStarted = playingIndex !== null || routineComplete;
+
     return (
       <div className="flex flex-col h-full animate-in fade-in duration-500 relative">
         <div className="absolute top-0 left-0 w-full h-[2px] bg-[#ec4899]" />
-        <div className="p-4 flex-1 flex flex-col gap-4">
+        <div className="p-4 flex-1 flex flex-col gap-4 overflow-y-auto">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-extrabold tracking-tight">{activeRoutine.name}</h1>
               <p className="text-[#ec4899] font-light tracking-[0.2em] uppercase text-xs mt-1">
-                {activeRoutine.items.length} items · {activeRoutine.items.reduce((a, i) => a + i.durationMinutes, 0)} min total
+                {activeRoutine.items.length} items · {totalMinutes} min total
               </p>
             </div>
             <button
-              onClick={() => setActiveRoutine(null)}
+              onClick={handleBack}
               className="px-4 py-2 bg-[#1A1A1A] hover:bg-[#222] rounded-[8px] text-sm font-medium text-white/60 hover:text-white transition-colors"
             >
               ← Back
             </button>
           </div>
 
+          {/* Global playback controls */}
+          {routineComplete ? (
+            <div className="bg-[#16a34a]/10 border border-[#16a34a]/30 rounded-[8px] p-4 flex items-center justify-between">
+              <p className="text-[#16a34a] font-bold text-sm">Routine complete!</p>
+              <button
+                onClick={() => startFromIndex(0)}
+                className="px-4 py-2 bg-[#ec4899] hover:bg-[#db2777] text-white rounded-[8px] text-sm font-bold flex items-center gap-2 transition-colors"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" /> Start Again
+              </button>
+            </div>
+          ) : sessionStarted ? (
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsPlaying(p => !p)}
+                className="flex-1 py-2.5 bg-[#1A1A1A] hover:bg-[#222] rounded-[8px] font-bold flex items-center justify-center gap-2 text-sm transition-colors"
+              >
+                {isPlaying
+                  ? <><Pause className="w-4 h-4" /> Pause</>
+                  : <><Play className="w-4 h-4 fill-current" /> Resume</>}
+              </button>
+              <button
+                onClick={skipToNext}
+                disabled={playingIndex === activeRoutine.items.length - 1}
+                title="Skip to next item"
+                className="px-4 py-2.5 bg-[#1A1A1A] hover:bg-[#222] disabled:opacity-30 rounded-[8px] text-sm font-medium transition-colors"
+              >
+                <SkipForward className="w-4 h-4" />
+              </button>
+              <button
+                onClick={stopPlayback}
+                title="Stop routine"
+                className="px-4 py-2.5 bg-[#1A1A1A] hover:bg-red-400/10 hover:text-red-400 rounded-[8px] text-sm font-medium transition-colors"
+              >
+                <Square className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => startFromIndex(0)}
+              className="w-full py-3 bg-[#ec4899] hover:bg-[#db2777] text-white rounded-[8px] font-bold flex items-center justify-center gap-2 transition-colors"
+            >
+              <Play className="w-4 h-4 fill-current" /> Start Routine
+            </button>
+          )}
+
+          {/* Items list */}
           <div className="bg-[#1A1A1A] rounded-[8px] p-4 space-y-3">
-            <p className="text-xs text-white/30 mb-4">Routine playback is a placeholder — in a future update this will auto-step through each item with a timer.</p>
-            {activeRoutine.items.map((item, index) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-[#222] rounded-[8px]">
-                <div className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-[#ec4899]/20 text-[#ec4899] flex items-center justify-center font-bold text-sm">
-                    {index + 1}
+            {activeRoutine.items.map((item, index) => {
+              const isActive = playingIndex === index;
+              const isCompleted = routineComplete || (playingIndex !== null && index < playingIndex);
+              const totalSecs = item.durationMinutes * 60;
+              const progress = isActive
+                ? ((totalSecs - secondsRemaining) / totalSecs) * 100
+                : isCompleted ? 100 : 0;
+
+              return (
+                <div
+                  key={item.id}
+                  className={`flex items-center justify-between p-4 rounded-[8px] transition-colors ${
+                    isActive
+                      ? 'bg-[#ec4899]/10 border border-[#ec4899]/30'
+                      : isCompleted
+                      ? 'bg-[#222] opacity-50'
+                      : 'bg-[#222]'
+                  }`}
+                >
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 ${
+                      isActive ? 'bg-[#ec4899] text-white' : 'bg-[#ec4899]/20 text-[#ec4899]'
+                    }`}>
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white truncate">
+                        {item.type === 'Scale' && `${NOTES[item.rootNote || 0]} ${item.scaleType} Scale`}
+                        {item.type === 'Arpeggio' && `${NOTES[item.rootNote || 0]} ${item.arpeggioType} Arpeggio`}
+                        {item.type === 'Metronome' && `Metronome Practice (${item.bpm} BPM)`}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        {isActive ? (
+                          <>
+                            <span className="text-xs text-[#ec4899] font-bold tabular-nums">{formatTime(secondsRemaining)}</span>
+                            <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-[#ec4899] rounded-full transition-all duration-1000"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          <p className="text-xs text-white/30">{item.durationMinutes} min</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-white">
-                      {item.type === 'Scale' && `${NOTES[item.rootNote || 0]} ${item.scaleType} Scale`}
-                      {item.type === 'Arpeggio' && `${NOTES[item.rootNote || 0]} ${item.arpeggioType} Arpeggio`}
-                      {item.type === 'Metronome' && `Metronome Practice (${item.bpm} BPM)`}
-                    </h3>
-                    <p className="text-xs text-white/30">{item.durationMinutes} minutes</p>
-                  </div>
+                  <button
+                    onClick={() => startFromIndex(index)}
+                    title="Start from this item"
+                    className="w-9 h-9 rounded-full bg-[#ec4899] flex items-center justify-center hover:bg-[#db2777] transition-colors ml-3 shrink-0"
+                  >
+                    <Play className="w-3.5 h-3.5 text-white fill-current" />
+                  </button>
                 </div>
-                <button className="w-9 h-9 rounded-full bg-[#ec4899] flex items-center justify-center hover:bg-[#db2777] transition-colors">
-                  <Play className="w-3.5 h-3.5 text-white fill-current" />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
