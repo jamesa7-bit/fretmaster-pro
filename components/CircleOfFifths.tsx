@@ -69,6 +69,14 @@ const DEGREE_FOR_OFFSET: Record<number, string> = {
   0: 'I', 1: 'V', 2: 'II', 3: 'VI', 4: 'III', 5: 'VII', 11: 'IV',
 };
 
+// Circle SVG geometry constants
+const OUTER_R = 140;
+const INNER_R = 52;
+const MAJOR_R = 108;
+const DEGREE_R = 80;
+const MINOR_R = 63;
+const OVERLAY_R = 155; // function label overlay outside outer arc
+
 function getSliceDegree(
   circleIndex: number,
   activeKeyIndex: number,
@@ -405,8 +413,7 @@ export default function CircleOfFifths() {
               const isSubdominant = i === subdominantIndex;
               const { isDiatonic, degreeLabel } = getSliceDegree(i, activeKeyIndex);
 
-              // Slice geometry: outer r=140, inner r=52
-              const OUTER_R = 140, INNER_R = 52;
+              // Slice geometry
               const sAS = ((i - 0.5) * 30 - 90) * (Math.PI / 180);
               const sAE = ((i + 0.5) * 30 - 90) * (Math.PI / 180);
               const x1 = Math.cos(sAS) * OUTER_R, y1 = Math.sin(sAS) * OUTER_R;
@@ -433,10 +440,10 @@ export default function CircleOfFifths() {
               }
 
               // Label positions
-              const MAJOR_R = 108, DEGREE_R = 80, MINOR_R = 63;
               const majorX = Math.cos(angle) * MAJOR_R, majorY = Math.sin(angle) * MAJOR_R;
               const degreeX = Math.cos(angle) * DEGREE_R, degreeY = Math.sin(angle) * DEGREE_R;
               const minorX = Math.cos(angle) * MINOR_R, minorY = Math.sin(angle) * MINOR_R;
+              const overlayX = Math.cos(angle) * OVERLAY_R, overlayY = Math.sin(angle) * OVERLAY_R;
 
               const majorLabelFill = isSelected
                 ? colors.tonicMajorLabel
@@ -482,7 +489,7 @@ export default function CircleOfFifths() {
                   {degreeLabel && (
                     <text
                       x={degreeX} y={degreeY}
-                      fill={degreeLabel === 'I' && isSelected ? colors.degreeI : colors.degreeOther}
+                      fill={degreeLabel === 'I' ? colors.degreeI : colors.degreeOther}
                       fontSize="9"
                       fontWeight={degreeLabel === 'I' ? '900' : '700'}
                       textAnchor="middle"
@@ -504,15 +511,15 @@ export default function CircleOfFifths() {
                     {keyObj.minor}
                   </text>
 
-                  {/* Functions overlay labels */}
+                  {/* Functions overlay labels — placed outside the outer arc at r=155 */}
                   {showFunctions && isSelected && (
-                    <text x={majorX} y={majorY - 18} fill="#16a34a" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">TONIC</text>
+                    <text x={overlayX} y={overlayY} fill="#16a34a" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">TONIC</text>
                   )}
                   {showFunctions && isDominant && (
-                    <text x={majorX} y={majorY - 18} fill="#f87171" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">DOM</text>
+                    <text x={overlayX} y={overlayY} fill="#f87171" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">DOM</text>
                   )}
                   {showFunctions && isSubdominant && (
-                    <text x={majorX} y={majorY - 18} fill="#34d399" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">IV</text>
+                    <text x={overlayX} y={overlayY} fill="#34d399" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">IV</text>
                   )}
 
                   {/* Jazz subs tritone line */}
@@ -523,8 +530,8 @@ export default function CircleOfFifths() {
                         stroke="#10b981" strokeWidth="2" strokeDasharray="4 4"
                       />
                       <text
-                        x={Math.cos((i + 6) * 30 * Math.PI / 180 - Math.PI / 2) * 118}
-                        y={Math.sin((i + 6) * 30 * Math.PI / 180 - Math.PI / 2) * 118}
+                        x={Math.cos((i + 6) * 30 * Math.PI / 180 - Math.PI / 2) * 125}
+                        y={Math.sin((i + 6) * 30 * Math.PI / 180 - Math.PI / 2) * 125}
                         fill="#10b981" fontSize="9" fontWeight="bold" textAnchor="middle"
                       >
                         Tritone Sub
