@@ -76,6 +76,8 @@ const MAJOR_R = 108;
 const DEGREE_R = 80;
 const MINOR_R = 63;
 const OVERLAY_R = 155; // function label overlay outside outer arc
+const FRAME_OUTER_R = 148;
+const FRAME_INNER_R = 50;
 
 function getSliceDegree(
   circleIndex: number,
@@ -368,6 +370,18 @@ export default function CircleOfFifths() {
     });
   }
 
+  // Pre-compute window frame coordinates (IV slice left edge → VII slice right edge = 210°)
+  const frameStartAngle = ((activeKeyIndex - 1.5) * 30 - 90) * (Math.PI / 180);
+  const frameEndAngle   = ((activeKeyIndex + 5.5) * 30 - 90) * (Math.PI / 180);
+  const frameOx1 = Math.cos(frameStartAngle) * FRAME_OUTER_R;
+  const frameOy1 = Math.sin(frameStartAngle) * FRAME_OUTER_R;
+  const frameOx2 = Math.cos(frameEndAngle)   * FRAME_OUTER_R;
+  const frameOy2 = Math.sin(frameEndAngle)   * FRAME_OUTER_R;
+  const frameIx1 = Math.cos(frameStartAngle) * FRAME_INNER_R;
+  const frameIy1 = Math.sin(frameStartAngle) * FRAME_INNER_R;
+  const frameIx2 = Math.cos(frameEndAngle)   * FRAME_INNER_R;
+  const frameIy2 = Math.sin(frameEndAngle)   * FRAME_INNER_R;
+
   return (
     <div className="flex flex-col gap-3 animate-in fade-in duration-500 p-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
@@ -541,43 +555,13 @@ export default function CircleOfFifths() {
                 </g>
               );
             })}
-            {/* Diatonic window frame — brackets the 7 diatonic keys of the active key */}
-            {(() => {
-              const FRAME_OUTER_R = 148;
-              const FRAME_INNER_R = 50;
-              // Frame spans IV (one CCW from tonic) through VII (+5 CW from tonic) = 210°
-              const startAngle = ((activeKeyIndex - 1.5) * 30 - 90) * (Math.PI / 180);
-              const endAngle   = ((activeKeyIndex + 5.5) * 30 - 90) * (Math.PI / 180);
-
-              const ox1 = Math.cos(startAngle) * FRAME_OUTER_R;
-              const oy1 = Math.sin(startAngle) * FRAME_OUTER_R;
-              const ox2 = Math.cos(endAngle)   * FRAME_OUTER_R;
-              const oy2 = Math.sin(endAngle)   * FRAME_OUTER_R;
-              const ix1 = Math.cos(startAngle) * FRAME_INNER_R;
-              const iy1 = Math.sin(startAngle) * FRAME_INNER_R;
-              const ix2 = Math.cos(endAngle)   * FRAME_INNER_R;
-              const iy2 = Math.sin(endAngle)   * FRAME_INNER_R;
-
-              const frameProps = {
-                fill: 'none' as const,
-                stroke: colors.frameStroke,
-                strokeWidth: '3.5',
-                strokeLinecap: 'round' as const,
-              };
-
-              return (
-                <g className="pointer-events-none">
-                  {/* Outer arc — clockwise 210° */}
-                  <path d={`M ${ox1} ${oy1} A ${FRAME_OUTER_R} ${FRAME_OUTER_R} 0 1 1 ${ox2} ${oy2}`} {...frameProps} />
-                  {/* Inner arc — counter-clockwise 210° */}
-                  <path d={`M ${ix2} ${iy2} A ${FRAME_INNER_R} ${FRAME_INNER_R} 0 1 0 ${ix1} ${iy1}`} {...frameProps} />
-                  {/* Left end cap */}
-                  <line x1={ox1} y1={oy1} x2={ix1} y2={iy1} {...frameProps} />
-                  {/* Right end cap */}
-                  <line x1={ox2} y1={oy2} x2={ix2} y2={iy2} {...frameProps} />
-                </g>
-              );
-            })()}
+            {/* Diatonic window frame — brackets IV through VII (all 7 diatonic keys), 210° */}
+            <g className="pointer-events-none" fill="none" stroke={colors.frameStroke} strokeWidth="3.5" strokeLinecap="round">
+              <path d={`M ${frameOx1} ${frameOy1} A ${FRAME_OUTER_R} ${FRAME_OUTER_R} 0 1 1 ${frameOx2} ${frameOy2}`} />
+              <path d={`M ${frameIx2} ${frameIy2} A ${FRAME_INNER_R} ${FRAME_INNER_R} 0 1 0 ${frameIx1} ${frameIy1}`} />
+              <line x1={frameOx1} y1={frameOy1} x2={frameIx1} y2={frameIy1} />
+              <line x1={frameOx2} y1={frameOy2} x2={frameIx2} y2={frameIy2} />
+            </g>
             {MODES.map((mode) => {
               const circleIdx = (activeKeyIndex + mode.circleOffset) % 12;
               const angle = (circleIdx * 30 - 90) * (Math.PI / 180);
