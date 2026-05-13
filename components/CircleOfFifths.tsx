@@ -35,6 +35,25 @@ interface CalculatedVoicing {
   shape: string;
 }
 
+// ── Modes ────────────────────────────────────────────────────────────────────
+
+interface ModeEntry {
+  label: string;
+  scaleKey: string;
+  circleOffset: number;
+  semitoneOffset: number;
+}
+
+const MODES: ModeEntry[] = [
+  { label: 'Ionian',     scaleKey: 'Major',        circleOffset: 0,  semitoneOffset: 0  },
+  { label: 'Mixolydian', scaleKey: 'Mixolydian',   circleOffset: 1,  semitoneOffset: 7  },
+  { label: 'Dorian',     scaleKey: 'Dorian',        circleOffset: 2,  semitoneOffset: 2  },
+  { label: 'Aeolian',    scaleKey: 'Natural Minor', circleOffset: 3,  semitoneOffset: 9  },
+  { label: 'Phrygian',   scaleKey: 'Phrygian',      circleOffset: 4,  semitoneOffset: 4  },
+  { label: 'Locrian',    scaleKey: 'Locrian',        circleOffset: 5,  semitoneOffset: 11 },
+  { label: 'Lydian',     scaleKey: 'Lydian',         circleOffset: 11, semitoneOffset: 5  },
+];
+
 // ── Voicing engine ───────────────────────────────────────────────────────────
 
 const NOTE_MAP: Record<string, number> = {
@@ -214,6 +233,12 @@ export default function CircleOfFifths() {
   const [targetFret, setTargetFret] = useState<number | null>(null);
   const [chordMode, setChordMode] = useState<ChordMode>('chords');
   const [triadInversion, setTriadInversion] = useState<TriadInversion>('root');
+  const [selectedMode, setSelectedMode] = useState<{
+    label: string;
+    scaleKey: string;
+    semitoneOffset: number;
+    circleIndex: number;
+  } | null>(null);
   const { setCurrentContext } = useAppContext();
   const { setSelectedKey } = useMusicContext();
 
@@ -224,6 +249,8 @@ export default function CircleOfFifths() {
   }, [activeKey, orientation, setCurrentContext]);
 
   useEffect(() => { setSelectedChord(null); }, [activeKeyIndex, orientation]);
+
+  useEffect(() => { setSelectedMode(null); }, [activeKeyIndex]);
 
   const getDiatonicChords = (rootIndex: number, isMinor: boolean) => {
     const scaleNotes = getScaleNotes(rootIndex, isMinor ? 'Natural Minor' : 'Major');
