@@ -437,6 +437,8 @@ export default function CircleOfFifths() {
               const slicePath = `M ${ix1} ${iy1} L ${x1} ${y1} A ${OUTER_R} ${OUTER_R} 0 0 1 ${x2} ${y2} L ${ix2} ${iy2} A ${INNER_R} ${INNER_R} 0 0 0 ${ix1} ${iy1} Z`;
 
               // Fill: tonic > functions overlay > diatonic > non-diatonic
+              // Functions overlay colors (#b91c1c, #047857) are intentionally fixed — they are
+              // semantic role colors (dominant=red, subdominant=dark-green) that don't vary by theme.
               let fillColor: string;
               let strokeColor = colors.sliceStroke;
               if (isSelected) {
@@ -536,7 +538,7 @@ export default function CircleOfFifths() {
                     <text x={overlayX} y={overlayY} fill="#34d399" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">IV</text>
                   )}
 
-                  {/* Jazz subs tritone line */}
+                  {/* Jazz subs tritone line — #10b981 is intentionally fixed (semantic accent color) */}
                   {showJazzSubs && isSelected && (
                     <g>
                       <path
