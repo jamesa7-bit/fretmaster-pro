@@ -403,33 +403,132 @@ export default function CircleOfFifths() {
               const isSelected = i === activeKeyIndex;
               const isDominant = i === dominantIndex;
               const isSubdominant = i === subdominantIndex;
-              const outerRadius = 140, innerRadius = 90;
-              const outerX = Math.cos(angle) * outerRadius, outerY = Math.sin(angle) * outerRadius;
-              const innerX = Math.cos(angle) * innerRadius, innerY = Math.sin(angle) * innerRadius;
+              const { isDiatonic, degreeLabel } = getSliceDegree(i, activeKeyIndex);
+
+              // Slice geometry: outer r=140, inner r=52
+              const OUTER_R = 140, INNER_R = 52;
               const sAS = ((i - 0.5) * 30 - 90) * (Math.PI / 180);
               const sAE = ((i + 0.5) * 30 - 90) * (Math.PI / 180);
-              const x1 = Math.cos(sAS)*180, y1 = Math.sin(sAS)*180, x2 = Math.cos(sAE)*180, y2 = Math.sin(sAE)*180;
-              const ix1 = Math.cos(sAS)*50, iy1 = Math.sin(sAS)*50, ix2 = Math.cos(sAE)*50, iy2 = Math.sin(sAE)*50;
-              const slicePath = `M ${ix1} ${iy1} L ${x1} ${y1} A 180 180 0 0 1 ${x2} ${y2} L ${ix2} ${iy2} A 50 50 0 0 0 ${ix1} ${iy1} Z`;
-              let fillColor = '#1A1A1A';
-              if (isSelected) fillColor = '#16a34a';
-              else if (showFunctions) { if (isDominant) fillColor = '#b91c1c'; else if (isSubdominant) fillColor = '#047857'; }
-              const majorFill = isSelected && orientation === 'major' ? '#0A0A0A' : 'rgba(255,255,255,0.65)';
-              const minorFill = isSelected && orientation === 'minor' ? '#0A0A0A' : 'rgba(255,255,255,0.35)';
+              const x1 = Math.cos(sAS) * OUTER_R, y1 = Math.sin(sAS) * OUTER_R;
+              const x2 = Math.cos(sAE) * OUTER_R, y2 = Math.sin(sAE) * OUTER_R;
+              const ix1 = Math.cos(sAS) * INNER_R, iy1 = Math.sin(sAS) * INNER_R;
+              const ix2 = Math.cos(sAE) * INNER_R, iy2 = Math.sin(sAE) * INNER_R;
+              const slicePath = `M ${ix1} ${iy1} L ${x1} ${y1} A ${OUTER_R} ${OUTER_R} 0 0 1 ${x2} ${y2} L ${ix2} ${iy2} A ${INNER_R} ${INNER_R} 0 0 0 ${ix1} ${iy1} Z`;
+
+              // Fill: tonic > functions overlay > diatonic > non-diatonic
+              let fillColor: string;
+              let strokeColor = colors.sliceStroke;
+              if (isSelected) {
+                fillColor = colors.tonicFill;
+              } else if (showFunctions && isDominant) {
+                fillColor = '#b91c1c';
+              } else if (showFunctions && isSubdominant) {
+                fillColor = '#047857';
+              } else if (isDiatonic) {
+                fillColor = colors.diatonicFill;
+                strokeColor = colors.diatonicStroke;
+              } else {
+                fillColor = colors.nonDiatonicFill;
+                strokeColor = colors.nonDiatonicStroke;
+              }
+
+              // Label positions
+              const MAJOR_R = 108, DEGREE_R = 80, MINOR_R = 63;
+              const majorX = Math.cos(angle) * MAJOR_R, majorY = Math.sin(angle) * MAJOR_R;
+              const degreeX = Math.cos(angle) * DEGREE_R, degreeY = Math.sin(angle) * DEGREE_R;
+              const minorX = Math.cos(angle) * MINOR_R, minorY = Math.sin(angle) * MINOR_R;
+
+              const majorLabelFill = isSelected
+                ? colors.tonicMajorLabel
+                : isDiatonic
+                ? colors.diatonicMajorLabel
+                : colors.nonDiatonicMajorLabel;
+
+              const minorLabelFill = isDiatonic
+                ? colors.diatonicMinorLabel
+                : colors.nonDiatonicMinorLabel;
+
               return (
-                <g key={keyObj.key} onClick={() => { setActiveKeyIndex(i); setSelectedKey({ rootIndex: keyObj.index, label: keyObj.key }); }} className="cursor-pointer hover:opacity-80">
-                  <path d={slicePath} fill={fillColor} stroke="#0A0A0A" strokeWidth="2" className="transition-colors duration-300" filter={isSelected ? 'url(#glow)' : ''} />
-                  <text x={outerX} y={outerY} fill={majorFill} fontSize={isSelected && orientation === 'major' ? '24' : '18'} fontWeight="bold" textAnchor="middle" dominantBaseline="central">{keyObj.key}</text>
-                  <text x={innerX} y={innerY} fill={minorFill} fontSize={isSelected && orientation === 'minor' ? '18' : '14'} fontWeight="bold" textAnchor="middle" dominantBaseline="central">{keyObj.minor}</text>
-                  {keyObj.sharps > 0 && <text x={outerX} y={outerY+20} fill="rgba(255,255,255,0.2)" fontSize="10" textAnchor="middle" dominantBaseline="central">{keyObj.sharps}#</text>}
-                  {keyObj.flats  > 0 && <text x={outerX} y={outerY+20} fill="rgba(255,255,255,0.2)" fontSize="10" textAnchor="middle" dominantBaseline="central">{keyObj.flats}b</text>}
-                  {showFunctions && isSelected    && <text x={outerX} y={outerY-25} fill="#16a34a" fontSize="10" fontWeight="bold" textAnchor="middle" dominantBaseline="central">TONIC</text>}
-                  {showFunctions && isDominant    && <text x={outerX} y={outerY-25} fill="#f87171" fontSize="10" fontWeight="bold" textAnchor="middle" dominantBaseline="central">DOMINANT</text>}
-                  {showFunctions && isSubdominant && <text x={outerX} y={outerY-25} fill="#34d399" fontSize="10" fontWeight="bold" textAnchor="middle" dominantBaseline="central">SUBDOM</text>}
+                <g
+                  key={keyObj.key}
+                  onClick={() => {
+                    setActiveKeyIndex(i);
+                    setSelectedKey({ rootIndex: keyObj.index, label: keyObj.key });
+                  }}
+                  className="cursor-pointer hover:opacity-80"
+                >
+                  <path
+                    d={slicePath}
+                    fill={fillColor}
+                    stroke={strokeColor}
+                    strokeWidth="1.5"
+                    className="transition-colors duration-300"
+                    filter={isSelected ? 'url(#glow)' : ''}
+                  />
+
+                  {/* Major note name — outer ring */}
+                  <text
+                    x={majorX} y={majorY}
+                    fill={majorLabelFill}
+                    fontSize={isSelected ? '14' : '12'}
+                    fontWeight="bold"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                  >
+                    {keyObj.key}
+                  </text>
+
+                  {/* Degree label — mid ring, diatonic only */}
+                  {degreeLabel && (
+                    <text
+                      x={degreeX} y={degreeY}
+                      fill={degreeLabel === 'I' && isSelected ? colors.degreeI : colors.degreeOther}
+                      fontSize="9"
+                      fontWeight={degreeLabel === 'I' ? '900' : '700'}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                    >
+                      {degreeLabel}
+                    </text>
+                  )}
+
+                  {/* Minor note name — inner ring */}
+                  <text
+                    x={minorX} y={minorY}
+                    fill={minorLabelFill}
+                    fontSize={isSelected && orientation === 'minor' ? '9' : '8'}
+                    fontWeight={isSelected && orientation === 'minor' ? 'bold' : 'normal'}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                  >
+                    {keyObj.minor}
+                  </text>
+
+                  {/* Functions overlay labels */}
+                  {showFunctions && isSelected && (
+                    <text x={majorX} y={majorY - 18} fill="#16a34a" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">TONIC</text>
+                  )}
+                  {showFunctions && isDominant && (
+                    <text x={majorX} y={majorY - 18} fill="#f87171" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">DOM</text>
+                  )}
+                  {showFunctions && isSubdominant && (
+                    <text x={majorX} y={majorY - 18} fill="#34d399" fontSize="8" fontWeight="bold" textAnchor="middle" dominantBaseline="central">IV</text>
+                  )}
+
+                  {/* Jazz subs tritone line */}
                   {showJazzSubs && isSelected && (
                     <g>
-                      <path d={`M 0 0 L ${Math.cos((i+6)*30*Math.PI/180-Math.PI/2)*180} ${Math.sin((i+6)*30*Math.PI/180-Math.PI/2)*180}`} stroke="#10b981" strokeWidth="2" strokeDasharray="4 4" />
-                      <text x={Math.cos((i+6)*30*Math.PI/180-Math.PI/2)*150} y={Math.sin((i+6)*30*Math.PI/180-Math.PI/2)*150} fill="#10b981" fontSize="10" fontWeight="bold" textAnchor="middle">Tritone Sub</text>
+                      <path
+                        d={`M 0 0 L ${Math.cos((i + 6) * 30 * Math.PI / 180 - Math.PI / 2) * 140} ${Math.sin((i + 6) * 30 * Math.PI / 180 - Math.PI / 2) * 140}`}
+                        stroke="#10b981" strokeWidth="2" strokeDasharray="4 4"
+                      />
+                      <text
+                        x={Math.cos((i + 6) * 30 * Math.PI / 180 - Math.PI / 2) * 118}
+                        y={Math.sin((i + 6) * 30 * Math.PI / 180 - Math.PI / 2) * 118}
+                        fill="#10b981" fontSize="9" fontWeight="bold" textAnchor="middle"
+                      >
+                        Tritone Sub
+                      </text>
                     </g>
                   )}
                 </g>
