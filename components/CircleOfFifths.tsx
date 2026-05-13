@@ -576,6 +576,43 @@ export default function CircleOfFifths() {
             )}
           </div>
 
+          {/* Modes Reference */}
+          <div className="bg-[#1A1A1A] rounded-[8px] p-4">
+            <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Modes</label>
+            <div className="flex flex-col gap-1">
+              {MODES.map((mode) => {
+                const modeRootChromatic = (activeKey.index + mode.semitoneOffset) % 12;
+                const modeRootName = getNoteName(modeRootChromatic, activeKey.flats > 0);
+                const modeNotes = getScaleNotes(modeRootChromatic, mode.scaleKey);
+                const circleIdx = (activeKeyIndex + mode.circleOffset) % 12;
+                const isSelected = selectedMode?.circleIndex === circleIdx;
+                return (
+                  <button
+                    key={mode.label}
+                    onClick={() => setSelectedMode(isSelected ? null : {
+                      label: mode.label,
+                      scaleKey: mode.scaleKey,
+                      semitoneOffset: mode.semitoneOffset,
+                      circleIndex: circleIdx,
+                    })}
+                    className="flex items-center justify-between rounded-[6px] px-3 py-2 text-left transition-all w-full"
+                    style={{
+                      background: isSelected ? 'rgba(22,163,74,0.05)' : 'transparent',
+                      borderLeft: isSelected ? '2px solid #16a34a' : '2px solid transparent',
+                    }}
+                  >
+                    <span className="font-bold text-sm shrink-0 mr-3" style={{ color: isSelected ? '#16a34a' : 'white' }}>
+                      {modeRootName} {mode.label}
+                    </span>
+                    <span className="text-xs text-white/40 truncate">
+                      {modeNotes.map(n => getNoteName(n, activeKey.flats > 0)).join(' · ')}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {showJazzSubs && (
             <div className="bg-emerald-950/30 border border-emerald-900/50 rounded-[8px] p-4">
               <label className="block text-xs font-light tracking-[0.2em] uppercase text-emerald-400 mb-3">Jazz Substitutions</label>
