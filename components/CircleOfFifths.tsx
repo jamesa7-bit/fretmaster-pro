@@ -567,15 +567,15 @@ export default function CircleOfFifths() {
               const angle = (circleIdx * 30 - 90) * (Math.PI / 180);
               const x = Math.cos(angle) * 205;
               const y = Math.sin(angle) * 205;
-              const isSelected = selectedMode?.circleIndex === circleIdx;
+              const isSelectedMode = selectedMode?.circleIndex === circleIdx;
               return (
                 <text
                   key={mode.label}
                   x={x}
                   y={y}
-                  fill={isSelected ? '#16a34a' : 'rgba(255,255,255,0.35)'}
+                  fill={isSelectedMode ? colors.modeActive : colors.modeInactive}
                   fontSize="9"
-                  fontWeight="bold"
+                  fontWeight={isSelectedMode ? 'bold' : 'normal'}
                   textAnchor="middle"
                   dominantBaseline="central"
                   className="cursor-pointer hover:opacity-80 select-none"
@@ -588,9 +588,13 @@ export default function CircleOfFifths() {
                 </text>
               );
             })}
-            <circle cx="0" cy="0" r="45" fill="#111" />
-            <text x="0" y="-5" fill="#ffffff" fontSize="14" fontWeight="bold" textAnchor="middle" dominantBaseline="central">{orientation === 'major' ? activeKey.key : activeKey.minor}</text>
-            <text x="0" y="15" fill="rgba(255,255,255,0.4)" fontSize="10" textAnchor="middle" dominantBaseline="central">{orientation === 'major' ? 'Major' : 'Minor'}</text>
+            <circle cx="0" cy="0" r="48" fill={colors.centerFill} stroke={colors.centerStroke} strokeWidth="1" />
+            <text x="0" y="-8" fill={colors.centerPrimaryText} fontSize="15" fontWeight="800" textAnchor="middle" dominantBaseline="central">
+              {orientation === 'major' ? activeKey.key : activeKey.minor}
+            </text>
+            <text x="0" y="10" fill={colors.centerSecondaryText} fontSize="9" textAnchor="middle" dominantBaseline="central">
+              {orientation === 'major' ? 'Major' : 'Minor'}
+            </text>
           </svg>
         </div>
 
