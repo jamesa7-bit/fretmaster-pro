@@ -44,6 +44,13 @@ interface ModeEntry {
   semitoneOffset: number;
 }
 
+interface SelectedMode {
+  label: string;
+  scaleKey: string;
+  semitoneOffset: number;
+  circleIndex: number;
+}
+
 const MODES: ModeEntry[] = [
   { label: 'Ionian',     scaleKey: 'Major',        circleOffset: 0,  semitoneOffset: 0  },
   { label: 'Mixolydian', scaleKey: 'Mixolydian',   circleOffset: 1,  semitoneOffset: 7  },
@@ -233,12 +240,7 @@ export default function CircleOfFifths() {
   const [targetFret, setTargetFret] = useState<number | null>(null);
   const [chordMode, setChordMode] = useState<ChordMode>('chords');
   const [triadInversion, setTriadInversion] = useState<TriadInversion>('root');
-  const [selectedMode, setSelectedMode] = useState<{
-    label: string;
-    scaleKey: string;
-    semitoneOffset: number;
-    circleIndex: number;
-  } | null>(null);
+  const [selectedMode, setSelectedMode] = useState<SelectedMode | null>(null);
   const { setCurrentContext } = useAppContext();
   const { setSelectedKey } = useMusicContext();
 
@@ -301,6 +303,16 @@ export default function CircleOfFifths() {
       return v ? `${v.baseFret}fr` : null;
     }
     return null;
+  }
+
+  function toggleMode(mode: ModeEntry, circleIdx: number) {
+    const isSelected = selectedMode?.circleIndex === circleIdx;
+    setSelectedMode(isSelected ? null : {
+      label: mode.label,
+      scaleKey: mode.scaleKey,
+      semitoneOffset: mode.semitoneOffset,
+      circleIndex: circleIdx,
+    });
   }
 
   return (
@@ -397,12 +409,7 @@ export default function CircleOfFifths() {
                   className="cursor-pointer hover:opacity-80 select-none"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedMode(isSelected ? null : {
-                      label: mode.label,
-                      scaleKey: mode.scaleKey,
-                      semitoneOffset: mode.semitoneOffset,
-                      circleIndex: circleIdx,
-                    });
+                    toggleMode(mode, circleIdx);
                   }}
                 >
                   {mode.label}
@@ -550,7 +557,7 @@ export default function CircleOfFifths() {
                   <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50">
                     {getNoteName((activeKey.index + selectedMode.semitoneOffset) % 12, activeKey.flats > 0)} {selectedMode.label}
                   </label>
-                  <button onClick={() => setSelectedMode(null)} className="text-white/30 hover:text-white transition-colors">
+                  <button type="button" onClick={() => setSelectedMode(null)} className="text-white/30 hover:text-white transition-colors">
                     <X className="w-3 h-3" />
                   </button>
                 </div>
@@ -588,13 +595,9 @@ export default function CircleOfFifths() {
                 const isSelected = selectedMode?.circleIndex === circleIdx;
                 return (
                   <button
+                    type="button"
                     key={mode.label}
-                    onClick={() => setSelectedMode(isSelected ? null : {
-                      label: mode.label,
-                      scaleKey: mode.scaleKey,
-                      semitoneOffset: mode.semitoneOffset,
-                      circleIndex: circleIdx,
-                    })}
+                    onClick={() => toggleMode(mode, circleIdx)}
                     className="flex items-center justify-between rounded-[6px] px-3 py-2 text-left transition-all w-full"
                     style={{
                       background: isSelected ? 'rgba(22,163,74,0.05)' : 'transparent',
