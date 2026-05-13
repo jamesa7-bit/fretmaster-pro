@@ -62,19 +62,22 @@ const MODES: ModeEntry[] = [
   { label: 'Lydian',     scaleKey: 'Lydian',         circleOffset: 11, semitoneOffset: 5  },
 ];
 
-// Circle-of-fifths order: tonic(0)=I, +1=V, +2=II, +3=VI, +4=III, +5=VII, +6=IV
-const CIRCLE_DEGREES = ['I', 'V', 'II', 'VI', 'III', 'VII', 'IV'] as const;
-const DIATONIC_COUNT = 7;
+// Diatonic keys of any major key occupy these circle-of-fifths offsets:
+// IV is one step counter-clockwise (offset 11), I–VII clockwise (0–5).
+const DIATONIC_OFFSETS = new Set([0, 1, 2, 3, 4, 5, 11]);
+const DEGREE_FOR_OFFSET: Record<number, string> = {
+  0: 'I', 1: 'V', 2: 'II', 3: 'VI', 4: 'III', 5: 'VII', 11: 'IV',
+};
 
 function getSliceDegree(
   circleIndex: number,
   activeKeyIndex: number,
 ): { isDiatonic: boolean; degreeLabel: string | null } {
   const relOffset = (circleIndex - activeKeyIndex + 12) % 12;
-  const isDiatonic = relOffset < DIATONIC_COUNT;
+  const isDiatonic = DIATONIC_OFFSETS.has(relOffset);
   return {
     isDiatonic,
-    degreeLabel: isDiatonic ? CIRCLE_DEGREES[relOffset] : null,
+    degreeLabel: isDiatonic ? DEGREE_FOR_OFFSET[relOffset] : null,
   };
 }
 
