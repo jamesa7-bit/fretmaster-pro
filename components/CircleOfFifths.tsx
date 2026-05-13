@@ -334,7 +334,7 @@ export default function CircleOfFifths() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Circle */}
         <div className="bg-[#1A1A1A] rounded-[8px] p-4 flex items-center justify-center min-h-[400px]">
-          <svg viewBox="-200 -200 400 400" className="w-full max-w-[400px] h-auto overflow-visible">
+          <svg viewBox="-220 -220 440 440" className="w-full max-w-[400px] h-auto overflow-visible">
             <defs>
               <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur stdDeviation="4" result="blur" />
@@ -376,6 +376,37 @@ export default function CircleOfFifths() {
                     </g>
                   )}
                 </g>
+              );
+            })}
+            {MODES.map((mode) => {
+              const circleIdx = (activeKeyIndex + mode.circleOffset) % 12;
+              const angle = (circleIdx * 30 - 90) * (Math.PI / 180);
+              const x = Math.cos(angle) * 205;
+              const y = Math.sin(angle) * 205;
+              const isSelected = selectedMode?.circleIndex === circleIdx;
+              return (
+                <text
+                  key={mode.label}
+                  x={x}
+                  y={y}
+                  fill={isSelected ? '#16a34a' : 'rgba(255,255,255,0.35)'}
+                  fontSize="9"
+                  fontWeight="bold"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  className="cursor-pointer hover:opacity-80 select-none"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedMode(isSelected ? null : {
+                      label: mode.label,
+                      scaleKey: mode.scaleKey,
+                      semitoneOffset: mode.semitoneOffset,
+                      circleIndex: circleIdx,
+                    });
+                  }}
+                >
+                  {mode.label}
+                </text>
               );
             })}
             <circle cx="0" cy="0" r="45" fill="#111" />
