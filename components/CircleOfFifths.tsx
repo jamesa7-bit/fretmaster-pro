@@ -35,6 +35,32 @@ interface CalculatedVoicing {
   shape: string;
 }
 
+// ── Modes ────────────────────────────────────────────────────────────────────
+
+interface ModeEntry {
+  label: string;
+  scaleKey: string;
+  circleOffset: number;
+  semitoneOffset: number;
+}
+
+interface SelectedMode {
+  label: string;
+  scaleKey: string;
+  semitoneOffset: number;
+  circleIndex: number;
+}
+
+const MODES: ModeEntry[] = [
+  { label: 'Ionian',     scaleKey: 'Major',        circleOffset: 0,  semitoneOffset: 0  },
+  { label: 'Mixolydian', scaleKey: 'Mixolydian',   circleOffset: 1,  semitoneOffset: 7  },
+  { label: 'Dorian',     scaleKey: 'Dorian',        circleOffset: 2,  semitoneOffset: 2  },
+  { label: 'Aeolian',    scaleKey: 'Natural Minor', circleOffset: 3,  semitoneOffset: 9  },
+  { label: 'Phrygian',   scaleKey: 'Phrygian',      circleOffset: 4,  semitoneOffset: 4  },
+  { label: 'Locrian',    scaleKey: 'Locrian',        circleOffset: 5,  semitoneOffset: 11 },
+  { label: 'Lydian',     scaleKey: 'Lydian',         circleOffset: 11, semitoneOffset: 5  },
+];
+
 // ── Voicing engine ───────────────────────────────────────────────────────────
 
 const NOTE_MAP: Record<string, number> = {
@@ -214,6 +240,7 @@ export default function CircleOfFifths() {
   const [targetFret, setTargetFret] = useState<number | null>(null);
   const [chordMode, setChordMode] = useState<ChordMode>('chords');
   const [triadInversion, setTriadInversion] = useState<TriadInversion>('root');
+  const [selectedMode, setSelectedMode] = useState<SelectedMode | null>(null);
   const { setCurrentContext } = useAppContext();
   const { setSelectedKey } = useMusicContext();
 
@@ -224,6 +251,8 @@ export default function CircleOfFifths() {
   }, [activeKey, orientation, setCurrentContext]);
 
   useEffect(() => { setSelectedChord(null); }, [activeKeyIndex, orientation]);
+
+  useEffect(() => { setSelectedMode(null); }, [activeKeyIndex]);
 
   const getDiatonicChords = (rootIndex: number, isMinor: boolean) => {
     const scaleNotes = getScaleNotes(rootIndex, isMinor ? 'Natural Minor' : 'Major');
@@ -276,6 +305,16 @@ export default function CircleOfFifths() {
     return null;
   }
 
+  function toggleMode(mode: ModeEntry, circleIdx: number) {
+    const isSelected = selectedMode?.circleIndex === circleIdx;
+    setSelectedMode(isSelected ? null : {
+      label: mode.label,
+      scaleKey: mode.scaleKey,
+      semitoneOffset: mode.semitoneOffset,
+      circleIndex: circleIdx,
+    });
+  }
+
   return (
     <div className="flex flex-col gap-3 animate-in fade-in duration-500 p-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
@@ -307,7 +346,7 @@ export default function CircleOfFifths() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Circle */}
         <div className="bg-[#1A1A1A] rounded-[8px] p-4 flex items-center justify-center min-h-[400px]">
-          <svg viewBox="-200 -200 400 400" className="w-full max-w-[400px] h-auto overflow-visible">
+          <svg viewBox="-220 -220 440 440" className="w-full max-w-[400px] h-auto overflow-visible">
             <defs>
               <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur stdDeviation="4" result="blur" />
@@ -349,6 +388,32 @@ export default function CircleOfFifths() {
                     </g>
                   )}
                 </g>
+              );
+            })}
+            {MODES.map((mode) => {
+              const circleIdx = (activeKeyIndex + mode.circleOffset) % 12;
+              const angle = (circleIdx * 30 - 90) * (Math.PI / 180);
+              const x = Math.cos(angle) * 205;
+              const y = Math.sin(angle) * 205;
+              const isSelected = selectedMode?.circleIndex === circleIdx;
+              return (
+                <text
+                  key={mode.label}
+                  x={x}
+                  y={y}
+                  fill={isSelected ? '#16a34a' : 'rgba(255,255,255,0.35)'}
+                  fontSize="9"
+                  fontWeight="bold"
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  className="cursor-pointer hover:opacity-80 select-none"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleMode(mode, circleIdx);
+                  }}
+                >
+                  {mode.label}
+                </text>
               );
             })}
             <circle cx="0" cy="0" r="45" fill="#111" />
@@ -486,13 +551,68 @@ export default function CircleOfFifths() {
 
           {/* Scale Notes */}
           <div className="bg-[#1A1A1A] rounded-[8px] p-4">
-            <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Scale Notes</label>
-            <div className="flex flex-wrap gap-2">
-              {scaleNotes.map((noteIndex, i) => (
-                <div key={i} className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center font-bold text-white/70 text-sm">
-                  {getNoteName(noteIndex, activeKey.flats > 0)}
+            {selectedMode ? (
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50">
+                    {getNoteName((activeKey.index + selectedMode.semitoneOffset) % 12, activeKey.flats > 0)} {selectedMode.label}
+                  </label>
+                  <button type="button" onClick={() => setSelectedMode(null)} className="text-white/30 hover:text-white transition-colors">
+                    <X className="w-3 h-3" />
+                  </button>
                 </div>
-              ))}
+                <div className="flex flex-wrap gap-2">
+                  {getScaleNotes((activeKey.index + selectedMode.semitoneOffset) % 12, selectedMode.scaleKey).map((noteIndex, i) => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center font-bold text-white/70 text-sm">
+                      {getNoteName(noteIndex, activeKey.flats > 0)}
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Scale Notes</label>
+                <div className="flex flex-wrap gap-2">
+                  {scaleNotes.map((noteIndex, i) => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center font-bold text-white/70 text-sm">
+                      {getNoteName(noteIndex, activeKey.flats > 0)}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Modes Reference */}
+          <div className="bg-[#1A1A1A] rounded-[8px] p-4">
+            <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Modes</label>
+            <div className="flex flex-col gap-1">
+              {MODES.map((mode) => {
+                const modeRootChromatic = (activeKey.index + mode.semitoneOffset) % 12;
+                const modeRootName = getNoteName(modeRootChromatic, activeKey.flats > 0);
+                const modeNotes = getScaleNotes(modeRootChromatic, mode.scaleKey);
+                const circleIdx = (activeKeyIndex + mode.circleOffset) % 12;
+                const isSelected = selectedMode?.circleIndex === circleIdx;
+                return (
+                  <button
+                    type="button"
+                    key={mode.label}
+                    onClick={() => toggleMode(mode, circleIdx)}
+                    className="flex items-center justify-between rounded-[6px] px-3 py-2 text-left transition-all w-full"
+                    style={{
+                      background: isSelected ? 'rgba(22,163,74,0.05)' : 'transparent',
+                      borderLeft: isSelected ? '2px solid #16a34a' : '2px solid transparent',
+                    }}
+                  >
+                    <span className="font-bold text-sm shrink-0 mr-3" style={{ color: isSelected ? '#16a34a' : 'white' }}>
+                      {modeRootName} {mode.label}
+                    </span>
+                    <span className="text-xs text-white/40 truncate">
+                      {modeNotes.map(n => getNoteName(n, activeKey.flats > 0)).join(' · ')}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
