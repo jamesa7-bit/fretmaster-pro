@@ -544,14 +544,36 @@ export default function CircleOfFifths() {
 
           {/* Scale Notes */}
           <div className="bg-[#1A1A1A] rounded-[8px] p-4">
-            <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Scale Notes</label>
-            <div className="flex flex-wrap gap-2">
-              {scaleNotes.map((noteIndex, i) => (
-                <div key={i} className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center font-bold text-white/70 text-sm">
-                  {getNoteName(noteIndex, activeKey.flats > 0)}
+            {selectedMode ? (
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50">
+                    {getNoteName((activeKey.index + selectedMode.semitoneOffset) % 12, activeKey.flats > 0)} {selectedMode.label}
+                  </label>
+                  <button onClick={() => setSelectedMode(null)} className="text-white/30 hover:text-white transition-colors">
+                    <X className="w-3 h-3" />
+                  </button>
                 </div>
-              ))}
-            </div>
+                <div className="flex flex-wrap gap-2">
+                  {getScaleNotes((activeKey.index + selectedMode.semitoneOffset) % 12, selectedMode.scaleKey).map((noteIndex, i) => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center font-bold text-white/70 text-sm">
+                      {getNoteName(noteIndex, activeKey.flats > 0)}
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <label className="block text-xs font-light tracking-[0.2em] uppercase text-white/50 mb-3">Scale Notes</label>
+                <div className="flex flex-wrap gap-2">
+                  {scaleNotes.map((noteIndex, i) => (
+                    <div key={i} className="w-10 h-10 rounded-full bg-[#222] flex items-center justify-center font-bold text-white/70 text-sm">
+                      {getNoteName(noteIndex, activeKey.flats > 0)}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {showJazzSubs && (
