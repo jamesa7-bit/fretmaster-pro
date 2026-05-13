@@ -62,6 +62,22 @@ const MODES: ModeEntry[] = [
   { label: 'Lydian',     scaleKey: 'Lydian',         circleOffset: 11, semitoneOffset: 5  },
 ];
 
+// Circle-of-fifths order: tonic(0)=I, +1=V, +2=II, +3=VI, +4=III, +5=VII, +6=IV
+const CIRCLE_DEGREES = ['I', 'V', 'II', 'VI', 'III', 'VII', 'IV'] as const;
+const DIATONIC_COUNT = 7;
+
+function getSliceDegree(
+  circleIndex: number,
+  activeKeyIndex: number,
+): { isDiatonic: boolean; degreeLabel: string | null } {
+  const relOffset = (circleIndex - activeKeyIndex + 12) % 12;
+  const isDiatonic = relOffset < DIATONIC_COUNT;
+  return {
+    isDiatonic,
+    degreeLabel: isDiatonic ? CIRCLE_DEGREES[relOffset] : null,
+  };
+}
+
 // ── Voicing engine ───────────────────────────────────────────────────────────
 
 const NOTE_MAP: Record<string, number> = {
@@ -249,7 +265,6 @@ export default function CircleOfFifths() {
 
   const colors = {
     tonicFill:        '#16a34a',
-    tonicGlow:        dark,
     diatonicFill:     dark ? '#052e16' : '#dcfce7',
     diatonicStroke:   dark ? '#166534' : '#86efac',
     nonDiatonicFill:  dark ? '#0d0d0d' : '#ececec',
@@ -260,7 +275,7 @@ export default function CircleOfFifths() {
     nonDiatonicMajorLabel: dark ? '#2a2a2a' : '#cccccc',
     degreeI:          dark ? '#4ade80' : '#15803d',
     degreeOther:      '#16a34a',
-    diatonicMinorLabel: dark ? 'rgba(22,163,74,0.55)' : 'rgba(22,163,74,0.55)',
+    diatonicMinorLabel: 'rgba(22,163,74,0.55)',
     nonDiatonicMinorLabel: dark ? '#1e1e1e' : '#e0e0e0',
     frameStroke:      dark ? '#16a34a' : '#15803d',
     centerFill:       dark ? '#0a0a0a' : '#f0f0f0',
