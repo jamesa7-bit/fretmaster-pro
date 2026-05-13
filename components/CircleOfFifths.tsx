@@ -6,6 +6,7 @@ import { CHORD_DICTIONARY } from '@/lib/chord-dictionary';
 import { Layers, RefreshCw, X } from 'lucide-react';
 import { useAppContext } from './AppContext';
 import { useMusicContext } from '@/contexts/MusicContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import InfoTooltip from './InfoTooltip';
 
 const COF_INFO = [
@@ -243,6 +244,32 @@ export default function CircleOfFifths() {
   const [selectedMode, setSelectedMode] = useState<SelectedMode | null>(null);
   const { setCurrentContext } = useAppContext();
   const { setSelectedKey } = useMusicContext();
+  const { theme } = useTheme();
+  const dark = theme !== 'light';
+
+  const colors = {
+    tonicFill:        '#16a34a',
+    tonicGlow:        dark,
+    diatonicFill:     dark ? '#052e16' : '#dcfce7',
+    diatonicStroke:   dark ? '#166534' : '#86efac',
+    nonDiatonicFill:  dark ? '#0d0d0d' : '#ececec',
+    nonDiatonicStroke:dark ? '#181818' : '#e0e0e0',
+    sliceStroke:      dark ? '#0a0a0a' : '#f4f4f5',
+    tonicMajorLabel:  '#ffffff',
+    diatonicMajorLabel: dark ? '#86efac' : '#166534',
+    nonDiatonicMajorLabel: dark ? '#2a2a2a' : '#cccccc',
+    degreeI:          dark ? '#4ade80' : '#15803d',
+    degreeOther:      '#16a34a',
+    diatonicMinorLabel: dark ? 'rgba(22,163,74,0.55)' : 'rgba(22,163,74,0.55)',
+    nonDiatonicMinorLabel: dark ? '#1e1e1e' : '#e0e0e0',
+    frameStroke:      dark ? '#16a34a' : '#15803d',
+    centerFill:       dark ? '#0a0a0a' : '#f0f0f0',
+    centerStroke:     dark ? '#1a1a1a' : '#dddddd',
+    centerPrimaryText: dark ? '#ffffff' : '#0a0a0a',
+    centerSecondaryText: dark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)',
+    modeActive:       dark ? '#16a34a' : '#15803d',
+    modeInactive:     dark ? 'rgba(22,163,74,0.45)' : 'rgba(22,163,74,0.5)',
+  };
 
   const activeKey = CIRCLE_OF_FIFTHS[activeKeyIndex];
 
