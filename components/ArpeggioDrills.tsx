@@ -4,9 +4,11 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { NOTES, ARPEGGIOS, getArpeggioNotes, STANDARD_TUNING, getNoteName } from '@/lib/music-theory';
 import Fretboard, { FretMarker } from './Fretboard';
 import ArpeggioTab from './ArpeggioTab';
-import { Play, Square, Mic } from 'lucide-react';
+import MiniMetronome from './MiniMetronome';
+import { Play, Square } from 'lucide-react';
 import { useAppContext } from './AppContext';
 import { useMusicContext } from '@/contexts/MusicContext';
+import { useMetronome } from '@/contexts/MetronomeContext';
 
 type Orientation = 'vertical' | 'horizontal' | 'diagonal' | 'full';
 
@@ -86,12 +88,13 @@ export default function ArpeggioDrills() {
   const [selectedPos, setSelectedPos] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeNoteIdx, setActiveNoteIdx] = useState(-1);
-  const [isListening, setIsListening] = useState(false);
-  const [syncWithCircle, setSyncWithCircle] = useState(false);
+  const [syncWithCircle, setSyncWithCircle] = useState(true);
   const [showTab, setShowTab] = useState(true);
   const ascendingRef = useRef(true);
+  const prevBeatRef = useRef(-1);
   const { setCurrentContext } = useAppContext();
   const { selectedKey } = useMusicContext();
+  const { currentBeat, isPlaying: metroPlaying, togglePlay: metroToggle } = useMetronome();
 
   const effectiveRoot = syncWithCircle ? selectedKey.rootIndex : rootNote;
   const effectiveLabel = syncWithCircle ? selectedKey.label : NOTES[rootNote];
@@ -132,30 +135,39 @@ export default function ArpeggioDrills() {
     [posWindows, arpeggioNotes, effectiveRoot]
   );
 
+  // Advance one note per metronome beat
   useEffect(() => {
-    if (!isPlaying) return;
-    const iv = setInterval(() => {
-      setActiveNoteIdx(prev => {
-        if (ascendingRef.current) {
-          if (prev >= markers.length - 1) {
-            // reached the top — start descending
-            ascendingRef.current = false;
-            return prev - 1;
-          }
-          return prev + 1;
-        } else {
-          if (prev <= 0) {
-            // reached the bottom — stop
-            setIsPlaying(false);
-            ascendingRef.current = true;
-            return -1;
-          }
-          return prev - 1;
+    if (!isPlaying || !metroPlaying || currentBeat === -1) return;
+    if (currentBeat === prevBeatRef.current) return;
+    prevBeatRef.current = currentBeat;
+
+    setActiveNoteIdx(prev => {
+      if (prev < 0) return 0;
+      if (ascendingRef.current) {
+        if (prev >= markers.length - 1) {
+          ascendingRef.current = false;
+          return prev > 0 ? prev - 1 : 0;
         }
-      });
-    }, 500);
-    return () => clearInterval(iv);
-  }, [isPlaying, markers.length]);
+        return prev + 1;
+      } else {
+        if (prev <= 0) {
+          setIsPlaying(false);
+          ascendingRef.current = true;
+          return -1;
+        }
+        return prev - 1;
+      }
+    });
+  }, [currentBeat, isPlaying, metroPlaying, markers.length]);
+
+  // Stop arpeggio animation when metronome stops
+  useEffect(() => {
+    if (!metroPlaying && isPlaying) {
+      setIsPlaying(false);
+      setActiveNoteIdx(-1);
+      ascendingRef.current = true;
+    }
+  }, [metroPlaying, isPlaying]);
 
   const togglePlay = () => {
     if (isPlaying) {
@@ -164,17 +176,11 @@ export default function ArpeggioDrills() {
       ascendingRef.current = true;
     } else {
       ascendingRef.current = true;
+      prevBeatRef.current = -1;
       setIsPlaying(true);
       setActiveNoteIdx(0);
+      if (!metroPlaying) metroToggle();
     }
-  };
-
-  const toggleMic = async () => {
-    if (isListening) { setIsListening(false); return; }
-    try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      setIsListening(true);
-    } catch { alert('Microphone access required for pitch feedback.'); }
   };
 
   const displayMarkers = markers.map((m, i) => ({
@@ -229,15 +235,6 @@ export default function ArpeggioDrills() {
             {isPlaying ? 'Stop' : 'Play'}
           </button>
           <button
-            onClick={toggleMic}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] text-[10px] font-bold tracking-wide uppercase transition-all ${
-              isListening ? 'bg-[#16a34a]/20 text-[#16a34a]' : 'bg-[#1A1A1A] text-white/40 hover:text-white'
-            }`}
-          >
-            <Mic className={`w-3 h-3 ${isListening ? 'animate-pulse' : ''}`} />
-            Mic
-          </button>
-          <button
             onClick={() => setShowTab(t => !t)}
             className={`px-3 py-1.5 rounded-[6px] text-[10px] font-bold tracking-wide uppercase transition-all ${
               showTab ? 'bg-[#16a34a]/10 text-[#16a34a] border border-[#16a34a]/30' : 'bg-[#1A1A1A] text-white/40 hover:text-white'
@@ -249,7 +246,7 @@ export default function ArpeggioDrills() {
       </div>
 
       {/* ── Controls bar ── */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 bg-[#1A1A1A] rounded-[8px] px-4 py-2 shrink-0">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 bg-[#1A1A1A] rounded-[8px] px-4 py-2 shrink-0 justify-between">
         {!syncWithCircle && (
           <>
             <div className="flex items-center gap-2">
@@ -292,6 +289,7 @@ export default function ArpeggioDrills() {
             ))}
           </div>
         </div>
+        <MiniMetronome accent="#eab308" />
       </div>
 
       {/* ── Two-column main area ── */}

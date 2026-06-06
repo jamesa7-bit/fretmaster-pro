@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface SelectedKey {
   rootIndex: number; // chromatic index 0-11
@@ -14,11 +14,21 @@ interface MusicContextType {
 
 const MusicContext = createContext<MusicContextType | undefined>(undefined);
 
+const DEFAULT_KEY: SelectedKey = { rootIndex: 0, label: 'C' };
+
 export function MusicContextProvider({ children }: { children: ReactNode }) {
-  const [selectedKey, setSelectedKey] = useState<SelectedKey>({
-    rootIndex: 0,
-    label: 'C',
+  const [selectedKey, setSelectedKey] = useState<SelectedKey>(() => {
+    if (typeof window === 'undefined') return DEFAULT_KEY;
+    try {
+      const saved = localStorage.getItem('fretmaster_key');
+      if (saved) return JSON.parse(saved) as SelectedKey;
+    } catch {}
+    return DEFAULT_KEY;
   });
+
+  useEffect(() => {
+    localStorage.setItem('fretmaster_key', JSON.stringify(selectedKey));
+  }, [selectedKey]);
 
   return (
     <MusicContext.Provider value={{ selectedKey, setSelectedKey }}>

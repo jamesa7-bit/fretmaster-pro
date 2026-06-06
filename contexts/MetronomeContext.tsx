@@ -29,7 +29,11 @@ interface MetronomeContextType {
 const MetronomeContext = createContext<MetronomeContextType | undefined>(undefined);
 
 export function MetronomeProvider({ children }: { children: ReactNode }) {
-  const [bpm, setBpmState] = useState(120);
+  const [bpm, setBpmState] = useState(() => {
+    if (typeof window === 'undefined') return 120;
+    const saved = parseInt(localStorage.getItem('fretmaster_bpm') ?? '', 10);
+    return Number.isFinite(saved) && saved >= 20 && saved <= 300 ? saved : 120;
+  });
   const [isPlaying, setIsPlaying] = useState(false);
   const [beatsPerMeasure, setBeatsPerMeasureState] = useState(4);
   const [accentedBeats, setAccentedBeats] = useState<number[]>([0]);
@@ -56,6 +60,9 @@ export function MetronomeProvider({ children }: { children: ReactNode }) {
   const beatsPerMeasureRef = useRef(4);
   const subdivisionRef = useRef(1);
   const accentedBeatsRef = useRef<number[]>([0]);
+
+  // Persist BPM across sessions
+  useEffect(() => { localStorage.setItem('fretmaster_bpm', String(bpm)); }, [bpm]);
 
   // Keep refs in sync
   useEffect(() => { bpmRef.current = bpm; }, [bpm]);

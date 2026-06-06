@@ -4,7 +4,7 @@ import { useState } from 'react';
 import {
   MoreHorizontal, X, Guitar, Activity, Clock, CircleDashed,
   MessageSquare, ListMusic, Music, Layers, Grid3x3, ChevronLeft, ListOrdered,
-  Sun, Moon,
+  Sun, Moon, Home,
 } from 'lucide-react';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import ScaleDiagrams from '@/components/ScaleDiagrams';
@@ -36,6 +36,14 @@ const tabs = [
   { id: 'coach',     label: 'Theory Coach',    icon: MessageSquare, desc: 'AI-powered music theory help',        accent: '#10b981' },
 ];
 
+const bottomNavItems: { id: string | null; label: string; Icon: React.ElementType; accent: string }[] = [
+  { id: null,        label: 'Home',   Icon: Home,          accent: '#16a34a' },
+  { id: 'scales',    label: 'Scales', Icon: Guitar,        accent: '#3b82f6' },
+  { id: 'metronome', label: 'Tempo',  Icon: Clock,         accent: '#64748b' },
+  { id: 'circle',    label: 'Circle', Icon: CircleDashed,  accent: '#06b6d4' },
+  { id: 'coach',     label: 'Coach',  Icon: MessageSquare, accent: '#10b981' },
+];
+
 function AppShell() {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [showMenu, setShowMenu] = useState(false);
@@ -61,18 +69,13 @@ function AppShell() {
             <div className="w-20" /> // spacer to keep menu icon right-aligned
           )}
 
-          <div className="flex items-center gap-1">
-            <button
-              onClick={toggleTheme}
-              className="p-2 text-white/30 hover:text-white transition-colors"
-              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-            <button onClick={() => setShowMenu(true)} className="p-2">
-              <MoreHorizontal className="w-7 h-7 text-white/30 hover:text-white transition-colors" />
-            </button>
-          </div>
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-white/30 hover:text-white transition-colors"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
         </header>
 
         {/* Main Content */}
@@ -89,6 +92,44 @@ function AppShell() {
           {activeTab === 'caged'        && <CAGEDSystem />}
           {activeTab === 'progression'  && <ChordProgressionBuilder />}
         </main>
+
+        {/* Bottom navigation */}
+        <nav className="flex-shrink-0 flex items-stretch bg-[#0D0D0D] border-t border-white/8 z-30">
+          {bottomNavItems.map(({ id, label, Icon, accent }) => {
+            const isActive = activeTab === id;
+            return (
+              <button
+                key={label}
+                onClick={() => setActiveTab(id)}
+                className="relative flex-1 flex flex-col items-center justify-center py-2 gap-1 transition-colors"
+              >
+                <Icon
+                  className="w-5 h-5 transition-colors"
+                  style={{ color: isActive ? accent : 'rgba(255,255,255,0.3)' }}
+                />
+                <span
+                  className="text-[9px] font-bold tracking-wide uppercase transition-colors"
+                  style={{ color: isActive ? accent : 'rgba(255,255,255,0.25)' }}
+                >
+                  {label}
+                </span>
+                {isActive && (
+                  <span
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full"
+                    style={{ backgroundColor: accent }}
+                  />
+                )}
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setShowMenu(true)}
+            className="flex-1 flex flex-col items-center justify-center py-2 gap-1 transition-colors"
+          >
+            <MoreHorizontal className="w-5 h-5 text-white/30" />
+            <span className="text-[9px] font-bold tracking-wide uppercase text-white/25">More</span>
+          </button>
+        </nav>
 
         {/* Menu overlay */}
         {showMenu && (
